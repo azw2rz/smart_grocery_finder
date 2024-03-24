@@ -266,3 +266,5 @@ SELECT Store.*
 FROM Store
 JOIN StoreItems ON Store.store_ID = StoreItems.store
 WHERE StoreItems.item = $item_ID;
+
+------- Sample Data -------
