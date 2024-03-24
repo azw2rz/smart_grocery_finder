@@ -15,6 +15,7 @@ CREATE TABLE User (
     email VARCHAR(255) UNIQUE,
     password VARCHAR(50),
     address INT,
+    CHECK (age >= 14),
     FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE
 );
 
@@ -65,6 +66,7 @@ CREATE TABLE StoreItems (
     weight DECIMAL(10, 3),
     unit VARCHAR(10),
     price_per_unit DECIMAL(10, 2),
+    CHECK (price>0 AND weight>0 AND unit>0 AND price_per_unit>0),
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     PRIMARY KEY (store, item)
@@ -111,6 +113,7 @@ CREATE TABLE Sale (
     start_date DATETIME,
     end_date DATETIME,
     sale_price DECIMAL(10, 2),
+    CHECK (end_date > start_date),
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE
 );
