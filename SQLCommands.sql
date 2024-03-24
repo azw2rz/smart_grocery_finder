@@ -1,4 +1,4 @@
-CREATE TABLE Address (
+CREATE TABLE IF NOT EXISTS Address (
     address_ID INT AUTO_INCREMENT PRIMARY KEY,
     street_num VARCHAR(10),
     street_name VARCHAR(100),
@@ -7,7 +7,8 @@ CREATE TABLE Address (
     zipcode VARCHAR(10)
 );
 
-CREATE TABLE User (
+DROP TABLE IF EXISTS _User;
+CREATE TABLE _User (
     user_ID INT AUTO_INCREMENT PRIMARY KEY,
     age INT,
     first_name VARCHAR(100),
@@ -15,10 +16,10 @@ CREATE TABLE User (
     email VARCHAR(255) UNIQUE,
     password VARCHAR(50),
     address INT,
-    CHECK (age >= 14),
     FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS Store;
 CREATE TABLE Store (
     store_ID INT AUTO_INCREMENT PRIMARY KEY,
     address INT,
@@ -27,6 +28,7 @@ CREATE TABLE Store (
     FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS Item;
 CREATE TABLE Item (
     item_ID INT AUTO_INCREMENT PRIMARY KEY,
     image VARCHAR(255),
@@ -36,6 +38,7 @@ CREATE TABLE Item (
     item_category VARCHAR(100)
 );
 
+DROP TABLE IF EXISTS Review;
 CREATE TABLE Review (
     review_ID INT AUTO_INCREMENT PRIMARY KEY,
     user INT,
@@ -45,20 +48,22 @@ CREATE TABLE Review (
     comment TEXT,
     rating INT,
     review_time DATETIME,
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS membership;
 CREATE TABLE Membership (
     user INT,
     store INT,
     is_VIP BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
     PRIMARY KEY (user, store)
 );
 
+DROP TABLE IF EXISTS StoreItems;
 CREATE TABLE StoreItems (
     store INT,
     item INT,
@@ -66,46 +71,49 @@ CREATE TABLE StoreItems (
     weight DECIMAL(10, 3),
     unit VARCHAR(10),
     price_per_unit DECIMAL(10, 2),
-    CHECK (price>0 AND weight>0 AND unit>0 AND price_per_unit>0),
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     PRIMARY KEY (store, item)
 );
 
+DROP TABLE IF EXISTS purchasehistory;
 CREATE TABLE PurchaseHistory (
     purchase_ID INT AUTO_INCREMENT PRIMARY KEY,
     user INT,
     item INT,
     quantity INT,
     purchase_time DATETIME,
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS favorites;
 CREATE TABLE Favorites (
     user INT,
     item INT,
     store INT,
     added_date DATETIME,
     notification_enabled BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
     PRIMARY KEY (user, item, store)
 );
 
+DROP TABLE IF EXISTS NotifySale;
 CREATE TABLE NotifySale (
     user INT,
     item INT,
     store INT,
     notification_type VARCHAR(100),
     last_notified DATETIME,
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
     PRIMARY KEY (user, item, store)
 );
 
+DROP TABLE IF EXISTS Sale;
 CREATE TABLE Sale (
     sale_ID INT AUTO_INCREMENT PRIMARY KEY,
     item INT,
@@ -113,22 +121,34 @@ CREATE TABLE Sale (
     start_date DATETIME,
     end_date DATETIME,
     sale_price DECIMAL(10, 2),
-    CHECK (end_date > start_date),
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE
 );
 
-CREATE TABLE CHANGE_REQUEST (
+DELIMITER $$
+CREATE TRIGGER check_sales_dates
+BEFORE INSERT ON Sale
+FOR EACH ROW
+BEGIN	
+	IF NEW.end_date <= NEW.start_date THEN
+    	SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'end_date must be later than start_date';
+    END IF;
+END
+$$
+DELIMITER ;
+
+CREATE TABLE ChangeRequest (
     request_ID INT AUTO_INCREMENT PRIMARY KEY,
     user INT,
     item INT,
     store INT,
     request_time DATETIME,
     change_details VARCHAR(1000),
-    accepted BOOL
-    FOREIGN KEY (user) REFERENCES User(user_ID) ON DELETE CASCADE,
+    accepted BOOLEAN,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE,
-    FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE,
+    FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE
 );
 
 
