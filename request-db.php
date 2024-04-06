@@ -1,16 +1,69 @@
 <?php
 
-function searchItems($searchInput)
+function searchReqeust($searchType, $searchInput)
 {
     global $db;
-    $query = "SELECT * FROM Item WHERE name LIKE :searchInput";
+
+    if ($searchType == "item") {
+        $query = "SELECT * FROM item WHERE name LIKE :searchInput";
+    } elseif ($searchType == "store") {
+        $query = "SELECT * 
+                  FROM store JOIN address ON store.address = address.address_ID 
+                  WHERE name LIKE :searchInput";
+    } elseif ($searchType == "storeItemsID") {
+        $query = 
+               "SELECT
+                    s.store_ID AS store_ID,
+                    s.name AS store_name,
+                    a.zipcode,
+                    i.item_ID AS item_ID,
+                    i.name AS item_name,
+                    i.brand AS item_brand,
+                    si.price,
+                    si.weight,
+                    si.unit,
+                    si.price_per_unit
+                FROM
+                    Store s
+                    JOIN Address a ON s.address = a.address_ID
+                    JOIN StoreItems si ON s.store_ID = si.store
+                    JOIN Item i ON si.item = i.item_ID
+                WHERE
+                    s.store_ID = :searchInput;";  
+    } elseif ($searchType == "itemInStores") {
+        $query = 
+               "SELECT
+                    i.item_ID AS item_ID,
+                    i.name AS item_name,
+                    i.brand AS item_brand,
+                    s.store_ID AS store_ID,
+                    s.name AS store_name,
+                    a.zipcode,
+                    si.price,
+                    si.weight,
+                    si.unit,
+                    si.price_per_unit
+                FROM
+                    Store s
+                    JOIN Address a ON s.address = a.address_ID
+                    JOIN StoreItems si ON s.store_ID = si.store
+                    JOIN Item i ON si.item = i.item_ID
+                WHERE
+                    i.item_ID = :searchInput";
+    } else {
+        // handle invalid $searchType value
+        echo "Invalid search type...";
+        return [];
+    }
 
     $statement = $db->prepare($query);
 
     $searchPattern = "%$searchInput%";
-    $statement->bindValue(':searchInput', $searchPattern);
-
-    // $statement->bindValue(':searchInput', $searchPattern, PDO::PARAM_STR);
+    if ($searchType == "storeItemsID" || $searchType == "itemInStores") {
+        $statement->bindValue(':searchInput', $searchInput, PDO::PARAM_INT); // Bind $searchInput as an integer
+    } else {
+        $statement->bindValue(':searchInput', $searchPattern, PDO::PARAM_STR);
+    }
 
     $statement->execute();
     $result = $statement->fetchAll();

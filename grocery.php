@@ -5,22 +5,26 @@ require("request-db.php");
 
 <?php   // form handling
 
-$list_of_items = getAllItems();
-// var_dump($list_of_requests);   // debug
+$list_of_results = [];
+$result_type = "";
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET')   // GET
+// handles all GET requests
+if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     if (!empty($_GET['searchBtn'])) 
     {
-        $list_of_items = searchItems($_GET['searchInput']);
-
+        // search from database
+        // $_GET['searchType'] decides which database it searches from
+        // $_GET['searchInput'] decides the keyword in the SQL WHERE clause
+        $list_of_results = searchReqeust($_GET['searchType'], $_GET['searchInput']);
+        $result_type = $_GET['searchType'];
     } 
     else if (!empty($_GET['clearBtn'])) 
     {
-        $list_of_items = [];
+        // clears the search results
+        $list_of_results = [];
     }
 }
-
 ?>
 
 
@@ -43,24 +47,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')   // GET
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
-                <h2>Maintenance Request</h2>
+                <h2>Smart Grocery Finder</h2>
             </div>  
         </div>
 
         <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
             <table style="width:98%">
                 <tr>
-                    <td width="20%">   
+                    <td width="30%">   
                         <div class='mb-3'>
                             Search from:
-                            <select class='form-select' id='priority_option' name='priority_option'>
+                            <!-- <select class='form-select' id='searchType' name='searchType'>
                                 <option selected></option>
                                 <option value='item' >
-                                    Item - search from all items in record</option>
+                                    Item</option>
+                                <option value='store' >
+                                    Store</option>
+                            </select> -->
+                            <select class='form-select' id='searchType' name='searchType'>
+                                <option value='' <?php if ($result_type == '') echo 'selected'; ?>>
+                                </option>
+                                <option value='item' <?php if ($result_type == 'item') echo 'selected'; ?>>
+                                    Item
+                                </option>
+                                <option value='store' <?php if ($result_type == 'store') echo 'selected'; ?>>
+                                    Store
+                                </option>
+                                <option value='storeItemsID' <?php if ($result_type == 'storeItemsID') echo 'selected'; ?>>
+                                    Items in ONE store (by StoreID)
+                                </option>
+                                <option value='itemInStores' <?php if ($result_type == 'itemInStores') echo 'selected'; ?>>
+                                    ONE Item in stores (by ItemID)
+                                </option>
                             </select>
                         </div>
                     </td>
-                    <td width="80%">
+                    <td width="70%">
                         <div class="mb-3">
                             Type in your keyword:
                             <input type='text' class='form-control' id='searchInput' name='searchInput'
@@ -88,30 +110,133 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')   // GET
         <h3>Search Results</h3>
         <div class="row justify-content-center">  
         <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
-            <thead>
-                <tr style="background-color:#B0B0B0">
-                    <th width="10%"><b>ItemID</b></th>
-                    <th width="20%"><b>Name</b></th> 
-                    <th width="30%"><b>Description</b></th>        
-                    <th width="10%"><b>Brand</b></th>
-                    <th width="20%"><b>Item Category</b></th>        
-                    <!-- <th><b>Update?</b></th>
-                    <th><b>Delete?</b></th> -->
-                </tr>
-            </thead>
 
-            <?php if (empty($list_of_items)): ?>
+            <?php if ($result_type == ""): ?>
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="100%"><b>None</b></th>     
+                        <!-- <th><b>Update?</b></th>
+                        <th><b>Delete?</b></th> -->
+                    </tr>
+                </thead>
+            <?php elseif ($result_type == "item"): ?>
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="10%"><b>ItemID</b></th>
+                        <th width="20%"><b>Name</b></th> 
+                        <th width="30%"><b>Description</b></th>        
+                        <th width="10%"><b>Brand</b></th>
+                        <th width="20%"><b>Item Category</b></th>        
+                        <!-- <th><b>Update?</b></th>
+                        <th><b>Delete?</b></th> -->
+                    </tr>
+                </thead>
+            <?php elseif ($result_type == "store"): ?>
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="10%"><b>StoreID</b></th>
+                        <th width="20%"><b>Name</b></th> 
+                        <th width="15%"><b>Store Category</b></th>        
+                        <th width="10%"><b>Street #</b></th>        
+                        <th width="20%"><b>Street Name</b></th>        
+                        <th width="10%"><b>City</b></th>        
+                        <th width="5%"><b>State</b></th>        
+                        <th width="10%"><b>ZIP Code</b></th>        
+                        <!-- <th><b>Update?</b></th>
+                        <th><b>Delete?</b></th> -->
+                    </tr>
+                </thead>
+            <?php elseif ($result_type == "storeItemsID"): ?>
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="5%"><b>StoreID</b></th>
+                        <th width="15%"><b>Store Name</b></th> 
+                        <th width="8%"><b>ZIP Code</b></th>        
+                        <th width="5%"><b>ItemID</b></th>
+                        <th width="15%"><b>Item Name</b></th> 
+                        <th width="15%"><b>Brand</b></th> 
+                        <th width="10%"><b>Price</b></th> 
+                        <th width="5%"><b>Weight</b></th> 
+                        <th width="5%"><b>Unit</b></th> 
+                        <th width="20%"><b>Price per Unit</b></th> 
+                        <!-- <th><b>Update?</b></th>
+                        <th><b>Delete?</b></th> -->
+                    </tr>
+                </thead>
+            <?php elseif ($result_type == "itemInStores"): ?>
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="5%"><b>ItemID</b></th>
+                        <th width="15%"><b>Item Name</b></th> 
+                        <th width="15%"><b>Brand</b></th> 
+                        <th width="5%"><b>StoreID</b></th>
+                        <th width="15%"><b>Store Name</b></th> 
+                        <th width="8%"><b>ZIP Code</b></th>        
+                        <th width="10%"><b>Price</b></th> 
+                        <th width="5%"><b>Weight</b></th> 
+                        <th width="5%"><b>Unit</b></th> 
+                        <th width="20%"><b>Price per Unit</b></th> 
+                        <!-- <th><b>Update?</b></th>
+                        <th><b>Delete?</b></th> -->
+                    </tr>
+                </thead>
+            <?php endif; ?>
+
+            <?php if (empty($list_of_results)): ?>
                 <tr>
                     <td colspan="5" style="text-align: center;">No results found</td>
                 </tr>
-            <?php else: ?>
-                <?php foreach ($list_of_items as $item_info): ?>
+            <?php elseif ($result_type == "item"): ?>
+                <?php foreach ($list_of_results as $item_info): ?>
                     <tr>
                         <td><?php echo $item_info['item_ID']; ?></td>
                         <td><?php echo $item_info['name']; ?></td>
                         <td><?php echo $item_info['description']; ?></td>
                         <td><?php echo $item_info['brand']; ?></td>
                         <td><?php echo $item_info['item_category']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php elseif ($result_type == "store"): ?>
+                <?php foreach ($list_of_results as $store_info): ?>
+                    <tr>
+                        <td><?php echo $store_info['store_ID']; ?></td>
+                        <td><?php echo $store_info['name']; ?></td>
+                        <td><?php echo $store_info['store_category']; ?></td>
+                        <td><?php echo $store_info['street_num']; ?></td>
+                        <td><?php echo $store_info['street_name']; ?></td>
+                        <td><?php echo $store_info['city']; ?></td>
+                        <td><?php echo $store_info['state']; ?></td>
+                        <td><?php echo $store_info['zipcode']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php elseif ($result_type == "storeItemsID"): ?>
+                <?php foreach ($list_of_results as $store_info): ?>
+                    <tr>
+                        <td><?php echo $store_info['store_ID']; ?></td>
+                        <td><?php echo $store_info['store_name']; ?></td>
+                        <td><?php echo $store_info['zipcode']; ?></td>
+                        <td><?php echo $store_info['item_ID']; ?></td>
+                        <td><?php echo $store_info['item_name']; ?></td>
+                        <td><?php echo $store_info['item_brand']; ?></td>
+                        <td><?php echo $store_info['price']; ?></td>
+                        <td><?php echo $store_info['weight']; ?></td>
+                        <td><?php echo $store_info['unit']; ?></td>
+                        <td><?php echo $store_info['price_per_unit']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php elseif ($result_type == "itemInStores"): ?>
+                <?php foreach ($list_of_results as $store_info): ?>
+                    <tr>
+                        <td><?php echo $store_info['item_ID']; ?></td>
+                        <td><?php echo $store_info['item_name']; ?></td>
+                        <td><?php echo $store_info['item_brand']; ?></td>
+                        <td><?php echo $store_info['store_ID']; ?></td>
+                        <td><?php echo $store_info['store_name']; ?></td>
+                        <td><?php echo $store_info['zipcode']; ?></td>
+                        <td><?php echo $store_info['price']; ?></td>
+                        <td><?php echo $store_info['weight']; ?></td>
+                        <td><?php echo $store_info['unit']; ?></td>
+                        <td><?php echo $store_info['price_per_unit']; ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
