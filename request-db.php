@@ -4,10 +4,14 @@ function checkLogin($searchType, $searchInput)
 {
     global $db;
 
-    $query = "SELECT id, username, password FROM users WHERE username = ?";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
+    $statement = $db->prepare($query);
+
+    $searchPattern = "%$searchInput%";
+    $statement->bindValue(':searchInput', $searchInput, PDO::PARAM_INT); // Bind $searchInput as an integer
+
+    $statement->execute();
+    $result = $statement->fetchAll();
+    $statement->closeCursor();
 
     if($user && password_verify($password, $user['password'])) {
         // Password is correct, start session and redirect to dashboard
