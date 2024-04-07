@@ -36,11 +36,7 @@ footer {
 #content-wrap {
   padding-bottom: 6.5rem;    /* Footer height */
 }
-    
-.cropped-img { 
-  width: 200px; /* width of container */
-  height: 2px; /* height of container */
-  border: 1px solid black;
-  object-fit: cover;
-  object-position: 100% 50%;
+
+.container {
+  margin-top: 10px;
 }
