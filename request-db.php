@@ -29,12 +29,52 @@ function checkLogin($email, $password)
     $result = $statement->fetch();
     $statement->closeCursor();
 
-    if($result && verifyPassword($password, $result['password'])) {
+    if ($result && verifyPassword($password, $result['password'])) {
         return true;
     } else {
         return false;
     }
 }
+
+function checkLogin($first_name, $last_name, $email, $password, $password_conf) 
+{
+    global $db;
+
+    $query = "SELECT * FROM _User WHERE email = :email";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':email', $email);
+
+    $statement->execute();
+    $result = $statement->fetch();
+    $statement->closeCursor();
+
+    if ($result) {
+        return array("success"=>false, "cause"=>"exist");
+    }
+
+    $password_match = $password == $password_conf;
+    
+    if (!$password_match) {
+        return array("success"=>false, "cause"=>"password");
+    }
+
+    $passwordHashed = hashPassword($password);
+
+    $query = "INSERT INTO _user (first_name, last_name, email, password) 
+                VALUES (:first_name, :last_name, :email, :password)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':email', $email);
+    $statement->bindValue(':email', $email);
+    $statement->bindValue(':email', $email);
+    $statement->bindValue(':email', $email);
+
+    $statement->execute();
+    $result = $statement->fetch();
+    $statement->closeCursor();
+}
+ 
 
 function searchReqeust($searchType, $searchInput)
 {
