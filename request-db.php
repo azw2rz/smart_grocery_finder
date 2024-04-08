@@ -1,25 +1,38 @@
 <?php
 
-function checkLogin($searchType, $searchInput) 
+function hashPassword($password) {
+    // password_hash() is function in PHP
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    return $hashedPassword;
+}
+
+function verifyPassword($password, $hashedPassword) {
+    // password_verity() is function in PHP
+    if (password_verify($password, $hashedPassword)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function checkLogin($email, $password) 
 {
     global $db;
 
+    $query = "SELECT user_ID, email, password FROM _User WHERE email = :email";
+
     $statement = $db->prepare($query);
 
-    $searchPattern = "%$searchInput%";
-    $statement->bindValue(':searchInput', $searchInput, PDO::PARAM_INT); // Bind $searchInput as an integer
+    $statement->bindValue(':email', $email);
 
     $statement->execute();
-    $result = $statement->fetchAll();
+    $result = $statement->fetch();
     $statement->closeCursor();
 
-    if($user && password_verify($password, $user['password'])) {
-        // Password is correct, start session and redirect to dashboard
-        $_SESSION['user_id'] = $user['id'];
-        header("Location: dashboard.php");
-        exit;
+    if($result && verifyPassword($password, $result['password'])) {
+        return true;
     } else {
-        $error = "Invalid username or password";
+        return false;
     }
 }
 
