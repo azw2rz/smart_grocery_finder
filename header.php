@@ -1,7 +1,16 @@
+<?php 
+require_once("connect-db.php");
+require_once("request-db.php");
+?>
+
 <?php
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
+    echo "<p>Logging out</p>";
+
+    $_SESSION = array();
     session_destroy();
+
     header("Location: login.php");
     exit;
 }

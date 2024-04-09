@@ -29,27 +29,32 @@ function checkLogin($email, $password)
     $result = $statement->fetch();
     $statement->closeCursor();
 
-    if ($result && verifyPassword($password, $result['password'])) {
-        return true;
+    echo "got here too";
+
+    if (!$result) {
+        return array("success"=>false, "cause"=>"exist");
+    } else if (!verifyPassword($password, $result['password'])){
+        return array("success"=>false, "cause"=>"password");
     } else {
-        return false;
+        return array("success"=>true, "cause"=>"none", "user"=>$result);
     }
 }
 
-function checkLogin($first_name, $last_name, $email, $password, $password_conf) 
+function signUp($first_name, $last_name, $email, $password, $password_conf) 
 {
     global $db;
 
     $query = "SELECT * FROM _User WHERE email = :email";
     $statement = $db->prepare($query);
 
-    $statement->bindValue(':email', $email);
+    $emailString = "$email";
+    $statement->bindValue(':email', $emailString, PDO::PARAM_STR);
 
     $statement->execute();
-    $result = $statement->fetch();
+    $result = $statement->fetchAll();
     $statement->closeCursor();
 
-    if ($result) {
+    if (count($result) > 0) {
         return array("success"=>false, "cause"=>"exist");
     }
 
@@ -65,14 +70,15 @@ function checkLogin($first_name, $last_name, $email, $password, $password_conf)
                 VALUES (:first_name, :last_name, :email, :password)";
     $statement = $db->prepare($query);
 
+    $statement->bindValue(':first_name', "$first_name");
+    $statement->bindValue(':last_name', $last_name);
     $statement->bindValue(':email', $email);
-    $statement->bindValue(':email', $email);
-    $statement->bindValue(':email', $email);
-    $statement->bindValue(':email', $email);
+    $statement->bindValue(':password', $passwordHashed);
 
     $statement->execute();
-    $result = $statement->fetch();
     $statement->closeCursor();
+
+    return array("success"=>true, "cause"=>"none");
 }
  
 
@@ -150,34 +156,6 @@ function searchReqeust($searchType, $searchInput)
     return $result;
 }
 
-function addRequests($reqDate, $roomNumber, $reqBy, $repairDesc, $reqPriority)
-{
-    global $db;
-    $reqDate = date('Y-m-d');   // ensure proper data type
-    $query = "INSERT INTO requests (reqDate, roomNumber, reqBy, repairDesc, reqPriority) 
-            VALUES (:reqDate, :roomNumber, :reqBy, :repairDesc, :reqPriority);";
-
-    try {
-        // $statement = $db->query($query);
-        
-        $statement = $db->prepare($query);
-
-        $statement->bindValue(':reqDate', $reqDate);
-        $statement->bindValue(':roomNumber', $roomNumber);
-        $statement->bindValue(':reqBy', $reqBy);
-        $statement->bindValue(':repairDesc', $repairDesc);
-        $statement->bindValue(':reqPriority', $reqPriority);
-
-        $statement->execute();
-        $statement->closeCursor();
-
-    } catch (PDOException $e) {
-        $e->getMessage();
-    } catch (Exception $e) {
-        $e->getMessage();
-    }
-}
-
 function getAllItems()
 {
     global $db;
@@ -193,24 +171,6 @@ function getAllItems()
     echo "Number of total items: " . $itemCount;
 
     return $result;
-}
-
-function getRequestById($id)  
-{
-    
-
-}
-
-function updateRequest($reqId, $reqDate, $roomNumber, $reqBy, $repairDesc, $reqPriority)
-{
-
-
-}
-
-function deleteRequest($reqId)
-{
-
-    
 }
 
 ?>

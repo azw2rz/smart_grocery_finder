@@ -59,6 +59,11 @@ header h1 {
   margin: 0;
 }
 
+p {
+  margin: 0;
+  padding: 0;
+}
+
 .logout-btn {
   background-color: #d9534f;
   color: white;

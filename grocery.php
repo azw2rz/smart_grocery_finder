@@ -1,11 +1,19 @@
-<?php 
-require("connect-db.php");
-require("request-db.php");
-?>
-
-<?php include 'header.php'; ?>
-
 <?php   // form handling
+
+// redirect to login page if not logged in
+// $session_status = session_status();
+// if ($session_status != PHP_SESSION_ACTIVE) {
+//     header("Location: login.php");
+//     exit;
+// }
+session_start();
+
+if (!$_SESSION["user_id"]) {
+    header("Location: login.php");
+    exit;
+}
+
+echo $_SESSION["user_id"];
 
 $list_of_results = [];
 $result_type = "";
@@ -28,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 }
 ?>
+
+<?php include 'header.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">

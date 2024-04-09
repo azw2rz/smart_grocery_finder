@@ -3,31 +3,39 @@ require("connect-db.php");
 require("request-db.php");
 ?>
 
-<?php include 'header.php'; ?>
-
 <?php
 session_start();
 
-// Check if the user is already logged in
-if(isset($_SESSION['user_id'])) {
+if ($_SESSION) {
     header("Location: grocery.php");
     exit;
 }
 
 // Login form submission handling
-if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
-    $success = checkLogin($_POST['email'], $_POST['password']);
-    // $success = hashPassword($_POST['password']);
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!empty($_POST['login'])) {
+        $result = checkLogin($_POST['email'], $_POST['password']);
 
-    if ($success) {
-        $_SESSION['user_id'] = $user['user_ID'];
-        header("Location: grocery.php");
+        if ($result["success"] == true) {
+            $_SESSION['user_id'] = $result["user"]['user_ID'];
+            header("Location: grocery.php");
+            exit;
+        } else if ($result["cause"] == "exist") {
+            echo "Account doesn't exist.";
+        } else if ($result["cause"] == "password") {
+            echo "Password is incorrect";
+        } else {
+            echo "Unknown error...";
+        }
+    }
+    else if (!empty($_POST['signup'])) {
+        header("Location: signup.php");
         exit;
-    } else {
-        echo "Invalid email or password";
     }
 }
 ?>
+
+<?php include 'header.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -50,6 +58,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             <label for="password">Password:</label><br>
             <input type="password" id="password" name="password"><br>
             <input type="submit" name="login" value="Login">
+            <input type="submit" name="signup" value="Signup">
         </form>
     </div>  
 </body>
