@@ -1,7 +1,6 @@
-<?php
-// Check if the user is already logged in
-session_start();
+<?php include 'header.php'; ?>
 
+<?php
 $isFormSubmitted = false;
 
 // Login form submission handling
@@ -34,13 +33,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $error .= "<p>Confirm password is required.</p>";
         }
 
-        // If there are no errors, proceed with signup
+        // if everything filled, try signup
         if (empty($error)) {
             $result = signUp($_POST['first-name'], $_POST['last-name'], $_POST['email'], $_POST['password'], $_POST['password-conf']);
             if ($result["success"]) {
                 echo "Success!";
-                // header("Location: login.php");
-                // exit;
+                sleep(3);
+                header("Location: login.php");
+                exit;
             } else {
                 if ($result["cause"] == "exist") {
                     $error .= "The email has been registered already.";
@@ -59,8 +59,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-<?php include 'header.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">

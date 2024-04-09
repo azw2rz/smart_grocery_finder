@@ -1,10 +1,6 @@
-<?php 
-require("connect-db.php");
-require("request-db.php");
-?>
+<?php include 'header.php'; ?>
 
 <?php
-session_start();
 
 if ($_SESSION) {
     header("Location: grocery.php");
@@ -34,8 +30,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-<?php include 'header.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
