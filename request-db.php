@@ -15,8 +15,30 @@ function verifyPassword($password, $hashedPassword) {
     }
 }
 
-function checkLogin($email, $password) 
-{
+function changePassword($user_ID, $newPassword, $conf) {
+    $equal = $newPassword == $conf;    
+    if (!$equal) {
+        return array("success"=>false, "cause"=>"different");
+    }
+
+    $password = hashPassword($newPassword);
+
+    global $db;
+
+    $query = "UPDATE _User SET password = :password WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':password', $password, PDO::PARAM_STR);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+
+    return array("success"=>true, "cause"=>"none");
+}
+
+function checkLogin($email, $password) {
     global $db;
 
     $query = "SELECT user_ID, email, password FROM _User WHERE email = :email";
@@ -29,7 +51,7 @@ function checkLogin($email, $password)
     $result = $statement->fetch();
     $statement->closeCursor();
 
-    echo "got here too";
+    // echo "got here too";
 
     if (!$result) {
         return array("success"=>false, "cause"=>"exist");
@@ -40,8 +62,7 @@ function checkLogin($email, $password)
     }
 }
 
-function signUp($first_name, $last_name, $email, $password, $password_conf) 
-{
+function signUp($first_name, $last_name, $email, $password, $password_conf) {
     global $db;
 
     $query = "SELECT * FROM _User WHERE email = :email";
@@ -80,10 +101,8 @@ function signUp($first_name, $last_name, $email, $password, $password_conf)
 
     return array("success"=>true, "cause"=>"none");
 }
- 
 
-function searchReqeust($searchType, $searchInput)
-{
+function searchReqeust($searchType, $searchInput) {
     global $db;
 
     if ($searchType == "item") {
@@ -156,8 +175,7 @@ function searchReqeust($searchType, $searchInput)
     return $result;
 }
 
-function getAllItems()
-{
+function getAllItems() {
     global $db;
 
     $query = "SELECT * FROM Item";
@@ -171,6 +189,45 @@ function getAllItems()
     echo "Number of total items: " . $itemCount;
 
     return $result;
+}
+
+function getUserInformation($user_id) {
+    global $db;
+
+    $query = "SELECT * FROM _User WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_id, PDO::PARAM_INT);
+
+    $statement->execute();
+    $result = $statement->fetch();
+    $statement->closeCursor();
+
+    return $result;
+}
+
+function updateUserInformation($user_ID, $first_name, $last_name, $age) {
+    global $db;
+
+    $query = "  UPDATE _User
+                SET first_name = :first_name,
+                    last_name = :last_name,
+                    age = :age
+                WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':first_name', $first_name, PDO::PARAM_STR);
+    $statement->bindValue(':last_name', $last_name, PDO::PARAM_STR);
+    $statement->bindValue(':age', $age, PDO::PARAM_INT);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    // $result = $statement->fetch();
+    $statement->closeCursor();
+
+    // return;
 }
 
 ?>

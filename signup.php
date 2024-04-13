@@ -38,7 +38,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $result = signUp($_POST['first-name'], $_POST['last-name'], $_POST['email'], $_POST['password'], $_POST['password-conf']);
             if ($result["success"]) {
                 echo "Success!";
-                sleep(3);
                 header("Location: login.php");
                 exit;
             } else {

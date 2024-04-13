@@ -7,7 +7,7 @@ if (!$_SESSION["user_id"]) {
     exit;
 }
 
-echo $_SESSION["user_id"];
+// echo $_SESSION["user_id"];
 
 $list_of_results = [];
 $result_type = "";
@@ -50,13 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                     <td width="30%">   
                         <div class='mb-3'>
                             Search from:
-                            <!-- <select class='form-select' id='searchType' name='searchType'>
-                                <option selected></option>
-                                <option value='item' >
-                                    Item</option>
-                                <option value='store' >
-                                    Store</option>
-                            </select> -->
                             <select class='form-select' id='searchType' name='searchType'>
                                 <option value='' <?php if ($result_type == '') echo 'selected'; ?>>
                                 </option>
@@ -120,8 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <th width="30%"><b>Description</b></th>        
                         <th width="10%"><b>Brand</b></th>
                         <th width="20%"><b>Item Category</b></th>        
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
+                        <th width="10%"><b>Stores</b></th>
                     </tr>
                 </thead>
             <?php elseif ($result_type == "store"): ?>
@@ -134,9 +126,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <th width="20%"><b>Street Name</b></th>        
                         <th width="10%"><b>City</b></th>        
                         <th width="5%"><b>State</b></th>        
-                        <th width="10%"><b>ZIP Code</b></th>        
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
+                        <th width="10%"><b>ZIP Code</b></th>   
+                        <th width="10%"><b>Items</b></th>
                     </tr>
                 </thead>
             <?php elseif ($result_type == "storeItemsID"): ?>
@@ -151,9 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <th width="10%"><b>Price</b></th> 
                         <th width="5%"><b>Weight</b></th> 
                         <th width="5%"><b>Unit</b></th> 
-                        <th width="20%"><b>Price per Unit</b></th> 
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
+                        <th width="20%"><b>Price per Unit</b></th>
                     </tr>
                 </thead>
             <?php elseif ($result_type == "itemInStores"): ?>
@@ -168,9 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <th width="10%"><b>Price</b></th> 
                         <th width="5%"><b>Weight</b></th> 
                         <th width="5%"><b>Unit</b></th> 
-                        <th width="20%"><b>Price per Unit</b></th> 
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
+                        <th width="20%"><b>Price per Unit</b></th>
                     </tr>
                 </thead>
             <?php endif; ?>
@@ -187,6 +174,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <td><?php echo $item_info['description']; ?></td>
                         <td><?php echo $item_info['brand']; ?></td>
                         <td><?php echo $item_info['item_category']; ?></td>
+                        <td>
+                            <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>">
+                                <input type="hidden" name="searchType" value="itemInStores">
+                                <input type="hidden" name="searchInput" value="<?php echo $item_info['item_ID']; ?>">
+                                <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"/>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php elseif ($result_type == "store"): ?>
@@ -200,6 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <td><?php echo $store_info['city']; ?></td>
                         <td><?php echo $store_info['state']; ?></td>
                         <td><?php echo $store_info['zipcode']; ?></td>
+                        <td>
+                            <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>">
+                                <input type="hidden" name="searchType" value="storeItemsID">
+                                <input type="hidden" name="searchInput" value="<?php echo $store_info['store_ID']; ?>">
+                                <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"/>
+                            </form>
+                        </td>                        
                     </tr>
                 <?php endforeach; ?>
             <?php elseif ($result_type == "storeItemsID"): ?>
