@@ -7,16 +7,8 @@ $isFormSubmitted = false;
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($_POST['signup'])) {
 
-        $isFormSubmitted = true;
-
-        // echo $_POST['first-name'];
-        // echo $_POST['last-name'];
-        // echo $_POST['email'];
-        // echo $_POST['password'];
-        // echo $_POST['password-conf'];
-
         $error = "";
-
+        
         if (empty($_POST['first-name'])) {
             $error .= "<p>First name is required.</p>";
         }
@@ -32,6 +24,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         if (empty($_POST['password-conf'])) {
             $error .= "<p>Confirm password is required.</p>";
         }
+        
+        $isFormSubmitted = true;
 
         // if everything filled, try signup
         if (empty($error)) {

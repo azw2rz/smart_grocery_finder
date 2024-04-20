@@ -11,3 +11,5 @@ to do things:
 - add to watch list
 - SALES
 - SORTING
+
+- make website logo/name into button to go to home page

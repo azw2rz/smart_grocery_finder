@@ -230,4 +230,20 @@ function updateUserInformation($user_ID, $first_name, $last_name, $age) {
     // return;
 }
 
+function getStores() {
+    global $db;
+
+    $query = "SELECT * FROM Store";
+    $statement = $db->prepare($query);       // compile
+    $statement->execute();
+    $result = $statement->fetchAll();      // fetch all results
+    $statement->closeCursor();
+
+    $itemCount = count($result);
+
+    echo "Number of total stores: " . $itemCount;
+
+    return $result;
+}
+
 ?>

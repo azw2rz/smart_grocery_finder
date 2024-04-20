@@ -19,6 +19,10 @@ body {
   height: 100%;
 }
 
+form {
+  margin: 0;
+}
+
 footer {
   position: absolute;
   bottom: 0;
@@ -114,3 +118,13 @@ p {
   text-decoration: none;
   color: black;
 }
+
+#requestBtn {
+  margin-right: 20px;
+}
+
+
+
+/*
+    Change request form things
+*/

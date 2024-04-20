@@ -20,6 +20,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">    
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="Wilson Zheng">
+        <meta name="description" content="Smart Grocery Finder App (CS 4750)">
         <title>Smart Grocery Finder</title>
         <!-- header.php is the only file that links to CSS sheets -->
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">  
@@ -33,6 +38,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
                 <h1>Smart Grocery Finder</h1>
                 <div class="header-buttons">
                     <?php if ($_SESSION): ?>
+                        <a href="request_change.php" id="requestBtn" name="requestBtn" 
+                        class="btn btn-primary" title="request change form">Request Changes</a>
                         <div class="profile-dropdown">
                             <button class="profile-btn" onclick="toggleProfileMenu(event)"></button>
                             <div class="profile-menu" id="profileMenu">

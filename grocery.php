@@ -11,6 +11,7 @@ if (!$_SESSION["user_id"]) {
 
 $list_of_results = [];
 $result_type = "";
+$search_input = "";
 
 // handles all GET requests
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -22,26 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         // $_GET['searchInput'] decides the keyword in the SQL WHERE clause
         $list_of_results = searchReqeust($_GET['searchType'], $_GET['searchInput']);
         $result_type = $_GET['searchType'];
+        $search_input = $_GET['searchInput'];
     } 
     else if (!empty($_GET['clearBtn'])) 
     {
         // clears the search results
         $list_of_results = [];
+        $search_input = "";
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">    
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Wilson Zheng">
-    <meta name="description" content="Smart Grocery Finder App (CS 4750)">
-    <title>Smart Grocery Finder</title>
-</head>
-
 <body>  
     <div class="container">
         <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
@@ -72,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <div class="mb-3">
                             Type in your keyword:
                             <input type='text' class='form-control' id='searchInput' name='searchInput'
-                                value="" />
+                            value="<?php echo $search_input; ?>" />
                         </div>
                     </td>
                 </tr>
