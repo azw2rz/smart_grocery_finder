@@ -246,4 +246,24 @@ function getStores() {
     return $result;
 }
 
+function requestChangeAddStore($user_ID, $store_name, $street_number, $street_name,
+                                $city, $state, $zip_code, $notes)
+{
+    global $db;
+
+    $change_details = "(add store) Name: $store_name, $street_number $street_name, $city $state $zip_code (notes) $notes";
+
+    $query = "INSERT INTO ChangeRequest (user, change_details, accepted) 
+                VALUES (:user_ID, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"add store\" change request.";
+}
+
 ?>
