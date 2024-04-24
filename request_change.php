@@ -19,9 +19,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
     if (!empty($_POST['submitBtn']))    // $_GET['....']
     {
         if ($_POST['requestType'] == 'addStore') {
-            requestChangeAddStore($_SESSION["user_id"], $_POST['storeName'], $_POST['streetNumber'], $_POST['streetName'],
-                                $_POST['city'], $_POST['state'], $_POST['zipCode'], $_POST['notesText']);
-            $_SESSION["requestTypeSubmitted"] = 'addStore';
+            requestChangeAddStore(
+                $_SESSION["user_id"], $_POST['storeName'], $_POST['streetNumber'], 
+                $_POST['streetName'], $_POST['city'], $_POST['state'], 
+                $_POST['zipCode'], $_POST['notesText']
+            );
+        } else if ($_POST['requestType'] == 'removeStore') {
+            requestChangeRemoveStore(
+                $_SESSION["user_id"], $_POST['storeSearch'], 
+                $_POST['removeStoreReason'], $_POST['notesText']
+            );
+        } else if ($_POST['requestType'] == 'addStoreItem') {
+            requestChangeAddStoreItem(
+                $_SESSION["user_id"], $_POST['storeSearch2'], $_POST['itemName'],
+                $_POST['itemBrand'], $_POST['price'], $_POST['weight'], 
+                $_POST['unit'], $_POST['notesText']
+            );
         }
 
         $isFormSubmitted = true;
@@ -164,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         <div class='mb-3' width="100%">
                             Select Store:
                             <div class="search-container">
-                                <input width="100%" type="text" class="search-input" id="storeSearch" placeholder="Search for a store" onkeyup="filterStores('storeSearch', 'storeList')">
+                                <input width="100%" type="text" class="search-input form-input" name="storeSearch" id="storeSearch" placeholder="Search for a store" onkeyup="filterStores('storeSearch', 'storeList')">
                                 <div class="store-list" id="storeList">
                                     <?php
                                     // Retrieve the list of stores from the database
@@ -198,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         <div class='mb-3' width="100%">
                             Select Store:
                             <div class="search-container">
-                                <input width="100%" type="text" class="search-input" id="storeSearch2" placeholder="Search for a store" onkeyup="filterStores('storeSearch2', 'storeList2')">
+                                <input width="100%" type="text" class="search-input form-input" name="storeSearch2" id="storeSearch2" placeholder="Search for a store" onkeyup="filterStores('storeSearch2', 'storeList2')">
                                 <div class="store-list" id="storeList2">
                                     <?php
                                     // Retrieve the list of stores from the database
@@ -244,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Unit (lowercase letters):
+                            Unit (e.g. kg):
                             <input type='text' class='form-control' id='unit' name='unit'
                                 value="" />
                         </div>
@@ -267,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Unit (lowercase letters):
+                            Unit (e.g. kg):
                             <input type='text' class='form-control' id='newUnit' name='newUnit'
                                 value="" />
                         </div>

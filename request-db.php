@@ -252,12 +252,15 @@ function requestChangeAddStore($user_ID, $store_name, $street_number, $street_na
     global $db;
 
     $change_details = "(add store) Name: $store_name, $street_number $street_name, $city $state $zip_code (notes) $notes";
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
 
-    $query = "INSERT INTO ChangeRequest (user, change_details, accepted) 
-                VALUES (:user_ID, :change_details, false)";
+    $query = "INSERT INTO ChangeRequest (user, request_time, change_details, accepted) 
+                VALUES (:user_ID, :time, :change_details, false)";
     $statement = $db->prepare($query);
 
     $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
     $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
 
     $statement->execute();
@@ -265,5 +268,60 @@ function requestChangeAddStore($user_ID, $store_name, $street_number, $street_na
     
     echo "Added \"add store\" change request.";
 }
+
+function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $change_details = "(remove store) Name: $store_name, reason: $reason (notes) $notes";
+
+    $query = "INSERT INTO ChangeRequest (user, store, request_time, change_details, accepted) 
+                VALUES (:user_ID, :store_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"remove store\" change request.";
+}
+
+function requestChangeAddStoreItem($user_ID, $store, $item_name,
+                                    $item_brand, $price, $weight, $unit, $notes)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $change_details = "(add store item) Store: $store_name, Item info: name-\"$item_name\" brand-\"$item_brand\" price-$price weight-$weight unit-$unit (notes) $notes";
+
+    $query = "INSERT INTO ChangeRequest (user, store, request_time, change_details, accepted) 
+                VALUES (:user_ID, :store_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"add store item\" change request.";
+}                                    
 
 ?>
