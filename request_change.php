@@ -35,6 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                 $_POST['itemBrand'], $_POST['price'], $_POST['weight'], 
                 $_POST['unit'], $_POST['notesText']
             );
+        } else if ($_POST['requestType'] == 'changePrice') {
+            requestChangeChangePrice(
+                $_SESSION["user_id"], $_POST['storeSearch2'], $_POST['itemName'],
+                $_POST['itemBrand'], $_POST['newPrice'], $_POST['newWeight'], 
+                $_POST['newUnit'], $_POST['notesText']
+            );
         }
 
         $isFormSubmitted = true;
@@ -89,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         }
     </style>
 </head>
-<body onload="hideFormFields()">
+<body>
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">

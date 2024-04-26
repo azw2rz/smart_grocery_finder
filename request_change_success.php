@@ -11,7 +11,7 @@
             <div class="col">
                 <h2>Request Submitted Successfully</h2>
                 <p>Your change request has been submitted successfully.</p>
-                <p><a href="request_change.php" class="btn btn-primary">Go back to form</a></p>
+                <p><a href="request_change.php" class="btn btn-primary" style="margin-top:10px;">Go back to form</a></p>
             </div>
         </div>
     </div>

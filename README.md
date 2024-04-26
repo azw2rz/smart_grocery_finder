@@ -12,4 +12,6 @@ to do things:
 - SALES
 - SORTING
 
+- users can add addresses 
+
 - make website logo/name into button to go to home page

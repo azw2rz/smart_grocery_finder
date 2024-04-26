@@ -6,6 +6,11 @@ require_once("request-db.php");
 <?php
 session_start();
 
+$isAdmin = false;
+if ($_SESSION) {
+    $isAdmin = checkAdmin($_SESSION['user_id']);
+}
+
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
     // echo "<p>Logging out</p>";
 
@@ -15,6 +20,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
     header("Location: login.php");
     exit;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -35,8 +41,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
     <body>
         <header>
             <div class="header-container">
-                <h1>Smart Grocery Finder</h1>
+                <?php if ($isAdmin): ?>
+                    <h1>Smart Grocery Finder (Admin)</h1>
+                <?php else: ?>
+                    <h1>Smart Grocery Finder</h1>
+                <?php endif; ?>
                 <div class="header-buttons">
+                    <?php if ($isAdmin): ?>
+                        <a href="admin.php" id="adminBtn" name="adminBtn" 
+                        class="btn btn-primary" title="admin portal">Admin Page</a>
+                    <?php endif; ?>
                     <?php if ($_SESSION): ?>
                         <a href="request_change.php" id="requestBtn" name="requestBtn" 
                         class="btn btn-primary" title="request change form">Request Changes</a>
