@@ -24,10 +24,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Unknown error...";
         }
     }
-    else if (!empty($_POST['signup'])) {
-        header("Location: signup.php");
-        exit;
-    }
 }
 ?>
 
@@ -43,16 +39,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
+    <div class="container">
+        <h2 style="margin-bottom:20px;">Login</h2>
         <?php if(isset($error)) echo "<p>$error</p>"; ?>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="email">Email:</label><br>
             <input type="text" id="email" name="email"><br>
             <label for="password">Password:</label><br>
             <input type="password" id="password" name="password"><br>
-            <input type="submit" name="login" value="Login">
-            <input type="submit" name="signup" value="Signup">
+            <div style="margin-top:20px;">
+                <input type="submit" name="login" value="Login">
+                <a style="margin-left:20px;" href="signup.php">Signup</a>
+            </div>
         </form>
     </div>  
 </body>

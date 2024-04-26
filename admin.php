@@ -132,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                                 <option value='removeStore' <?php if ($update_type == 'removeStore') echo 'selected'; ?>>
                                     Remove a store location
                                 </option>
+                                <option value='addItem' <?php if ($update_type == 'addItem') echo 'selected'; ?>>
+                                    Add an item
+                                </option>
                                 <option value='addStoreItem' <?php if ($update_type == 'addStoreItem') echo 'selected'; ?>>
                                     Add item (specific store)
                                 </option>
@@ -208,6 +211,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
+                <tr id='addItem1' class='hidden'>
+                    <td>
+                        <div class='mb-3'>
+                            Item Name:
+                            <input type='text' class='form-control' id='newItemName' name='newItemName'
+                                value="" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class='mb-3'>
+                            Item Brand:
+                            <input type='text' class='form-control' id='newItemBrand' name='newItemBrand'
+                                value="" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class='mb-3'>
+                            Item Category:
+                            <input type='text' class='form-control' id='newItemCategory' name='newItemCategory'
+                                value="" />
+                        </div>
+                    </td>
+                </tr>
+                <tr id='addItem2' class='hidden'>
+                    <td>
+                        <div class="mb-3">
+                            Other Notes:
+                            <textarea class='form-control' id='newItemDescription' name='newItemDescription' rows='4'></textarea>
+                        </div>
+                    </td>
+                </tr>
                 <tr id='storeItem' class='hidden'>
                     <td width="33%">
                         <div class='mb-3' width="100%">
@@ -279,14 +313,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Weight:
+                            New Weight:
                             <input type='text' class='form-control' id='newWeight' name='newWeight'
                                 value="" />
                         </div>
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Unit (e.g. kg):
+                            New Unit (e.g. kg):
                             <input type='text' class='form-control' id='newUnit' name='newUnit'
                                 value="" />
                         </div>
