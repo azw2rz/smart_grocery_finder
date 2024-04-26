@@ -90,13 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         <h3>Search Results</h3>
         <div class="row justify-content-center">  
             <?php if ($result_type == ""): ?>
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="100%"><b>None</b></th>     
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
-                    </tr>
-                </thead>
+
             <?php elseif ($result_type == "item"): ?>
                 
             <?php elseif ($result_type == "store"): ?>
@@ -108,9 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
             <?php endif; ?>
 
             <?php if (empty($list_of_results)): ?>
-                <tr>
-                    <td colspan="5" style="text-align: center;">No results found</td>
-                </tr>
+                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No results found</td>
+                    </tr>
+                </table>
             <?php elseif ($result_type == "item"): ?>
                 <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
