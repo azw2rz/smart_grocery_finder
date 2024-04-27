@@ -54,7 +54,7 @@ CREATE TABLE Review (
     FOREIGN KEY (store) REFERENCES Store(store_ID) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS membership;
+DROP TABLE IF EXISTS Membership;
 CREATE TABLE Membership (
     user INT,
     store INT,
@@ -77,7 +77,7 @@ CREATE TABLE StoreItems (
     PRIMARY KEY (store, item)
 );
 
-DROP TABLE IF EXISTS purchasehistory;
+DROP TABLE IF EXISTS PurchaseHistory;
 CREATE TABLE PurchaseHistory (
     purchase_ID INT AUTO_INCREMENT PRIMARY KEY,
     user INT,
@@ -88,7 +88,7 @@ CREATE TABLE PurchaseHistory (
     FOREIGN KEY (item) REFERENCES Item(item_ID) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS Favorites;
 CREATE TABLE Favorites (
     user INT,
     item INT,

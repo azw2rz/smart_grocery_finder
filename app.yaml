@@ -8,5 +8,4 @@ handlers:
 - url: /.*
   script: auto
 
-# Defaults to "serve index.php" 
 entrypoint: serve index.php

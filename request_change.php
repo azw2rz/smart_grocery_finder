@@ -3,7 +3,7 @@
 <?php   // form handling
 
 if (!$_SESSION["user_id"]) {
-    header("Location: login.php");
+    echo "<script>window.location.href = 'login.php';</script>";
     exit;
 }
 
@@ -44,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         }
 
         $isFormSubmitted = true;
-        header("Location: request_change_success.php");
+        echo "<script>window.location.href = 'request_change_success.php';</script>";
+
     }
 }
 
@@ -104,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         </div>
 
         <!---------------->
-        <form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateForm()">
+        <form method="post" action="request_change.php" onsubmit="return validateForm()">
             <table style="width:98%">
                 <tr id='request-type-row'>
                     <td colspan=3>

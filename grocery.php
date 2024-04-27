@@ -1,18 +1,21 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php   // form handling
 
-// if (!$_SESSION["user_id"]) {
-//     header("Location: login.php");
-//     exit;
-// }
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+if (!$_SESSION["user_id"]) {
+    echo "<script>window.location.href = 'login.php';</script>";
+    exit;
+}
 // echo $_SESSION["user_id"];
-
 $list_of_results = [];
 $result_type = "";
 $search_input = "";
-
 // handles all GET requests
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -22,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         // $_GET['searchType'] decides which database it searches from
         // $_GET['searchInput'] decides the keyword in the SQL WHERE clause
         $list_of_results = searchReqeust($_GET['searchType'], $_GET['searchInput']);
+        // echo count($list_of_results);
         $result_type = $_GET['searchType'];
         $search_input = $_GET['searchInput'];
     } 
@@ -33,12 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <body>  
     <div class="container">
-        <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
+        <!-- <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()"> -->
+        <form method="get" action="grocery.php" onsubmit="return validateInput()">
             <table style="width:98%">
                 <tr>
                     <td width="30%">   
@@ -71,13 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                     </td>
                 </tr>
             </table>
-
             <div class="row g-3 mx-auto">    
                 <div class="col-4 d-grid ">
                     <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"
                         title="Search for an item" />                  
                 </div>	       
-
                 <div class="col-4 d-grid ">
                     <input type="submit" value="Clear" id="clearBtn" name="clearBtn" class="btn btn-dark"
                         title="Clear search results" />                  

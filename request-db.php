@@ -1,5 +1,9 @@
 <?php
 
+function testing() {
+    echo "testtesttest fucker";
+}
+
 function hashPassword($password) {
     // password_hash() is function in PHP
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -87,7 +91,7 @@ function signUp($first_name, $last_name, $email, $password, $password_conf) {
 
     $passwordHashed = hashPassword($password);
 
-    $query = "INSERT INTO _user (first_name, last_name, email, password) 
+    $query = "INSERT INTO _User (first_name, last_name, email, password) 
                 VALUES (:first_name, :last_name, :email, :password)";
     $statement = $db->prepare($query);
 
@@ -122,10 +126,10 @@ function searchReqeust($searchType, $searchInput) {
     global $db;
 
     if ($searchType == "item") {
-        $query = "SELECT * FROM item WHERE name LIKE :searchInput";
+        $query = "SELECT * FROM Item WHERE name LIKE :searchInput";
     } elseif ($searchType == "store") {
         $query = "SELECT * 
-                  FROM store JOIN address ON store.address = address.address_ID 
+                  FROM Store JOIN Address ON Store.address = Address.address_ID 
                   WHERE name LIKE :searchInput";
     } elseif ($searchType == "storeItemsID") {
         $query = 
@@ -298,7 +302,7 @@ function requestChangeAddStore($user_ID, $store_name, $street_number, $street_na
     $statement->execute();
     $statement->closeCursor();
     
-    echo "Added \"add store\" change request.";
+    // echo "Added \"add store\" change request.";
 }
 
 function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
@@ -325,7 +329,7 @@ function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
     $statement->execute();
     $statement->closeCursor();
     
-    echo "Added \"remove store\" change request.";
+    // echo "Added \"remove store\" change request.";
 }
 
 function requestChangeAddStoreItem($user_ID, $store, $item_name,
@@ -353,7 +357,7 @@ function requestChangeAddStoreItem($user_ID, $store, $item_name,
     $statement->execute();
     $statement->closeCursor();
     
-    echo "Added \"add store item\" change request.";
+    // echo "Added \"add store item\" change request.";
 }     
 
 function requestChangeChangePrice($user_ID, $store, $item_name,
@@ -381,14 +385,14 @@ function requestChangeChangePrice($user_ID, $store, $item_name,
     $statement->execute();
     $statement->closeCursor();
     
-    echo "Added \"change price\" change request.";
+    // echo "Added \"change price\" change request.";
 }                                    
 
 function getChangeRequests()
 {
     global $db;
 
-    $query = "SELECT * FROM ChangeRequest WHERE accepted=false ORDER BY request_time DESC";
+    $query = "SELECT * FROM ChangeRequest WHERE accepted=false ORDER BY request_time ASC";
     $statement = $db->prepare($query);       // compile
     $statement->execute();
     $result1 = $statement->fetchAll();      // fetch all results
@@ -434,7 +438,7 @@ function adminRemoveStore($store)
     $store_ID = intval(trim($store_ID));
     $store_name = trim($store_name);
 
-    $query = "DELETE FROM store WHERE store_ID = :store_id";
+    $query = "DELETE FROM Store WHERE store_ID = :store_id";
     $statement = $db->prepare($query);
 
     $statement->bindValue(':store_id', $store_ID, PDO::PARAM_INT);
@@ -443,6 +447,26 @@ function adminRemoveStore($store)
     $statement->closeCursor();
     
     echo "Removed store \"$store_name\".";
+}
+
+function adminAddItem($item_name, $item_brand, $item_category,
+                        $item_description)
+{
+    global $db;
+
+    $query = "INSERT INTO Item (name, brand, item_category, description) 
+                VALUES (:item_name, :item_brand, :item_category, :item_description)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':item_name', $item_name, PDO::PARAM_STR);
+    $statement->bindValue(':item_brand', $item_brand, PDO::PARAM_STR);
+    $statement->bindValue(':item_category', $item_category, PDO::PARAM_STR);
+    $statement->bindValue(':item_description', $item_description, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    // echo "Added item \"$item_name\".";
 }
 
 function adminAddStoreItem($store, $item, $price, $weight, $unit)
@@ -461,7 +485,7 @@ function adminAddStoreItem($store, $item, $price, $weight, $unit)
     list($item_ID, $item_name) = explode(':', $item, 2);
     $item_ID = intval(trim($item_ID));
 
-    $query = "INSERT INTO storeItems (store, item, price, weight, unit, price_per_unit)
+    $query = "INSERT INTO StoreItems (store, item, price, weight, unit, price_per_unit)
                 values (:store, :item, :price, :weight, :unit, :price_per_unit)";
     $statement = $db->prepare($query);
 
@@ -492,7 +516,7 @@ function adminChangePrice($store, $item, $price, $weight, $unit)
     list($item_ID, $item_name) = explode(':', $item, 2);
     $item_ID = intval(trim($item_ID));
 
-    $query = "UPDATE storeItems
+    $query = "UPDATE StoreItems
                 SET price = :price, weight = :weight, unit = :unit, price_per_unit = :price_per_unit
                 WHERE store = :store AND item = :item";
     $statement = $db->prepare($query);
@@ -513,7 +537,7 @@ function adminChangePrice($store, $item, $price, $weight, $unit)
 function acceptChangeRequest($request_ID) {
     global $db;
     
-    $query = "UPDATE changeRequest
+    $query = "UPDATE ChangeRequest
                 SET accepted = true
                 WHERE request_ID = :request_ID";
     $statement = $db->prepare($query);
@@ -527,7 +551,7 @@ function acceptChangeRequest($request_ID) {
 function rejectChangeRequest($request_ID) {
     global $db;
 
-    $query = "UPDATE changeRequest
+    $query = "UPDATE ChangeRequest
                 SET accepted = false
                 WHERE request_ID = :request_ID";
     $statement = $db->prepare($query);

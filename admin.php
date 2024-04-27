@@ -1,9 +1,11 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php   // form handling
 
 if (!$_SESSION["user_id"]) {
-    header("Location: login.php");
+    echo "<script>window.location.href = 'login.php';</script>";
     exit;
 }
 
@@ -26,6 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             );
         } else if ($_POST['updateType'] == 'removeStore') {
             adminRemoveStore($_POST['storeSearch']);
+        } else if ($_POST['updateType'] == 'addItem') {
+            adminAddItem(
+                $_POST['newItemName'], $_POST['newItemBrand'], 
+                $_POST['newItemCategory'], $_POST['newItemDescription']
+            );
         } else if ($_POST['updateType'] == 'addStoreItem') {
             adminAddStoreItem(
                 $_POST['storeSearch2'], $_POST['itemSearch'],
@@ -40,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             );
         }
 
-        header("Location: admin_change_success.php");
+        echo "<script>window.location.href = 'admin_change_success.php';</script>";
     }
     else if (!empty($_POST['updateBtn'])) {
         $isChecked = isset($_POST["my_checkbox"]) ? true : false;
@@ -50,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         } else {
             rejectChangeRequest($_POST["rowRequestID"]);
         }
-        header("Location: admin.php");
+        echo "<script>window.location.href = 'admin.php';</script>";
     }
     else if (!empty($_POST['updateBtn2'])) {
         $isChecked = isset($_POST["my_checkbox2"]) ? true : false;
@@ -61,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             echo "set to accepted";
             rejectChangeRequest($_POST["rowRequestID2"]);
         }
-        header("Location: admin.php");
+        echo "<script>window.location.href = 'admin.php';</script>";
     }
 }
 ?>
@@ -117,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         </div>
 
         <!---------------->
-        <form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateForm()">
+        <form method="post" action="admin.php" onsubmit="return validateForm()">
             <table style="width:98%">
                 <tr id='request-type-row'>
                     <td colspan=3>
@@ -235,9 +242,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                 </tr>
                 <tr id='addItem2' class='hidden'>
-                    <td>
+                    <td colspan=3>
                         <div class="mb-3">
-                            Other Notes:
+                            Item Description:
                             <textarea class='form-control' id='newItemDescription' name='newItemDescription' rows='4'></textarea>
                         </div>
                     </td>
@@ -515,6 +522,7 @@ document.addEventListener('click', function(event) {
 const validationConfig = {
     addStore: ['storeName', 'streetNumber', 'streetName', 'city', 'state', 'zipCode'],
     removeStore: ['store', 'removeStoreReason'],
+    addItem: [],
     addStoreItem: ['store', 'item', 'price', 'weight', 'unit'],
     changePrice: ['store', 'item', 'newPrice', 'newWeight', 'newUnit']
 };
@@ -538,7 +546,9 @@ function validateForm() {
 }
 
 function hideFormFields() {
-    var formRows = document.querySelectorAll('#addStore1, #addStore2, #removeStore, #storeItem, #addStoreItem, #changePrice, #notes');
+    var formRows = document.querySelectorAll(
+        '#addStore1, #addStore2, #addItem1, #addItem2, #removeStore, #storeItem, #addStoreItem, #changePrice, #notes'
+    );
     formRows.forEach(function(row) {
         row.classList.add('hidden');
     });
@@ -548,11 +558,12 @@ function updateFormFields() {
     var updateType = document.getElementById('updateType').value;
     var addStoreFields1 = document.getElementById('addStore1');
     var addStoreFields2 = document.getElementById('addStore2');
+    var addItemFields1 = document.getElementById('addItem1');
+    var addItemFields2 = document.getElementById('addItem2');
     var removeStoreFields = document.getElementById('removeStore');
     var storeItemFields = document.getElementById('storeItem');
     var addStoreItemFields = document.getElementById('addStoreItem');
     var changePriceFields = document.getElementById('changePrice');
-    var notesField = document.getElementById('notes');
 
     // Hide all fields
     hideFormFields();
@@ -561,18 +572,17 @@ function updateFormFields() {
     if (updateType === 'addStore') {
         addStoreFields1.classList.remove('hidden');
         addStoreFields2.classList.remove('hidden');
-        notesField.classList.remove('hidden');
     } else if (updateType === 'removeStore') {
         removeStoreFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
+    } else if (updateType === 'addItem') {
+        addItemFields1.classList.remove('hidden');
+        addItemFields2.classList.remove('hidden');
     } else if (updateType === 'addStoreItem') {
         storeItemFields.classList.remove('hidden');
         addStoreItemFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
     } else if (updateType === 'changePrice') {
         storeItemFields.classList.remove('hidden');
         changePriceFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
     }
 }
 

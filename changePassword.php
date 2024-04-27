@@ -1,9 +1,11 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php
 
 if (!$_SESSION["user_id"]) {
-    header("Location: login.php");
+    echo "<script>window.location.href = 'login.php';</script>";
     exit;
 }
 
@@ -51,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 <body>
     <div class="container">
         <h2>User Information</h2>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        <form method="post" action="changePassword.php">
             <div class=info-box>
                 <label for="new_password">New Password:</label>
                 <input type="password" id="new_password"name="new_password"><br>

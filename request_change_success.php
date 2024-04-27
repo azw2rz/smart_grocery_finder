@@ -1,4 +1,13 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
+
+<?php   // form handling
+if (!$_SESSION["user_id"]) {
+    echo "<script>window.location.href = 'login.php';</script>";
+    exit;
+}
+?>
 
 <!DOCTYPE html>
 <html>

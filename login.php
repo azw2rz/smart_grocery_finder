@@ -1,20 +1,19 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php
-
 if ($_SESSION) {
-    header("Location: grocery.php");
+    echo "<script>window.location.href = 'grocery.php';</script>";
     exit;
 }
-
 // Login form submission handling
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($_POST['login'])) {
         $result = checkLogin($_POST['email'], $_POST['password']);
-
         if ($result["success"] == true) {
             $_SESSION['user_id'] = $result["user"]['user_ID'];
-            header("Location: grocery.php");
+            echo "<script>window.location.href = 'grocery.php';</script>";
             exit;
         } else if ($result["cause"] == "exist") {
             echo "Account doesn't exist.";
@@ -37,12 +36,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="description" content="Smart Grocery Finder App (CS 4750)">
     <title>Login</title>
 </head>
-
 <body>
     <div class="container">
         <h2 style="margin-bottom:20px;">Login</h2>
         <?php if(isset($error)) echo "<p>$error</p>"; ?>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <!-- <form method="post" action="php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"> -->
+        <form method="post" action="login.php">
             <label for="email">Email:</label><br>
             <input type="text" id="email" name="email"><br>
             <label for="password">Password:</label><br>

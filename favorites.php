@@ -1,9 +1,11 @@
+<?php session_start(); ?>
+
 <?php
 include 'header.php';
 
 // Check if user is logged in
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
+if (!$_SESSION["user_id"]) {
+    echo "<script>window.location.href = 'login.php';</script>";
     exit;
 }
 
@@ -41,7 +43,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["toggle_notification"])
         // Check if the update was successful
         if ($success) {
             // Redirect back to favorites.php to update the UI
-            header("Location: favorites.php");
+            echo "<script>window.location.href = 'favorites.php';</script>";
+
             exit;
         } else {
             // Handle error, if needed

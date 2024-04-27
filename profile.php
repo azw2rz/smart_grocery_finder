@@ -3,7 +3,7 @@
 <?php
 
 if (!$_SESSION["user_id"]) {
-    header("Location: login.php");
+    echo "<script>window.location.href = 'login.php';</script>";
     exit;
 }
 
@@ -13,9 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
     if (!empty($_POST['editProfileBtn'])) 
     {
-        $success = updateUserInformation($_SESSION["user_id"], $_POST['first_name'], $_POST['last_name'], $_POST['age']);
+        updateUserInformation($_SESSION["user_id"], $_POST['first_name'], $_POST['last_name'], $_POST['age']);
         $user_information = getUserInformation($_SESSION["user_id"]);
-
     } 
 }
 ?>
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 <body>
     <div class="container">
         <h2>User Information</h2>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        <form method="post" action="profile.php">
             <div class=info-box>
                 <label for="first_name">First Name:</label>
                 <input type="text" id="first_name"name="first_name" value="<?php echo $user_information["first_name"]; ?>"><br>

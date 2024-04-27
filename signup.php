@@ -32,7 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $result = signUp($_POST['first-name'], $_POST['last-name'], $_POST['email'], $_POST['password'], $_POST['password-conf']);
             if ($result["success"]) {
                 echo "Success!";
-                header("Location: login.php");
+                echo "<script>window.location.href = 'login.php';</script>";
                 exit;
             } else {
                 if ($result["cause"] == "exist") {
@@ -64,7 +64,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <h2 style="margin-bottom:20px;">Signup</h2>
         <?php if($isFormSubmitted && isset($error)) echo "<p>$error</p>"; ?>
-        <form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
+        <form method="post" action="signup.php" onsubmit="return validateInput()">
             <label for="first-name">First Name:</label><br>
             <input type="text" id="first-name" name="first-name"><br>
             <label for="last-name">Last Name:</label><br>
