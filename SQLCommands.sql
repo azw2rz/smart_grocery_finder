@@ -16,6 +16,7 @@ CREATE TABLE _User (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     address INT,
+    admin BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE
 );
 
@@ -204,6 +205,33 @@ $$
 DELIMITER ;
 
 
+DELIMITER $$
+CREATE PROCEDURE addStore (
+    IN store_name VARCHAR(100),
+    IN street_num VARCHAR(10),
+    IN street_name VARCHAR(100),
+    IN city VARCHAR(100),
+    IN state VARCHAR(100),
+    IN zipcode VARCHAR(10)
+)
+BEGIN
+    DECLARE store_ID INT;
+    DECLARE address_ID INT;
+    
+    SELECT address_ID INTO address_ID FROM Address 
+    WHERE street_num = street_num AND street_name = street_name AND city = city AND zipcode = zipcode LIMIT 1;
+	IF address_ID IS NULL THEN
+    	INSERT INTO Address (street_num, street_name, city, state, zipcode)
+        VALUES (street_num, street_name, city, state, zipcode);
+        SET address_ID = LAST_INSERT_ID();
+    END IF;
+    
+    INSERT INTO Store (address, name)
+    VALUES (address_ID, store_name);
+END
+$$
+DELIMITER ;
+
 
 INSERT INTO Address (street_num, street_name, city, state, zipcode) VALUES
 ('975', 'Hilton Heights Rd', 'Charlottesville', 'VA', '22901'),
@@ -228,7 +256,8 @@ INSERT INTO _User (age, first_name, last_name, email, password, address) VALUES
 (24, 'Gina', 'Huang', 'gina_huang@example.com', 'passwordGina', 7),
 (39, 'Harold', 'Kim', 'h.kim@example.com', 'kimPass123', 8),
 (28, 'Iris', 'Johnson', 'irisj@example.com', 'irisSecure!', 9),
-(45, 'Jake', 'Martinez', 'jake.m@example.com', 'jakePass45', 10);
+(45, 'Jake', 'Martinez', 'jake.m@example.com', 'jakePass45', 10),
+(22, 'Wilson', 'Zheng', 'azw2rz@virignia.edu', '$2y$10$7jHRr2xJB1MVrn/NbEhmU.Bl.IJB1sUMgtacAtz6fCf2yc3.ybJhm', 1);
 
 INSERT INTO Store (address, name, store_category) VALUES
 (1, 'Fresh Farm Produce', 'Grocery'),
@@ -295,6 +324,3 @@ INSERT INTO Sale (item, store, start_date, end_date, sale_price) VALUES
 (1, 1, '2024-04-01 00:00:00', '2024-04-07 23:59:59', 1.99),
 (2, 2, '2024-05-01 00:00:00', '2024-05-07 23:59:59', 3.99);
 
-INSERT INTO ChangeRequest (user, item, store, request_time, change_details, accepted) VALUES
-(1, 1, 1, NOW(), 'Update item description.', FALSE),
-(2, 2, 2, NOW(), 'Change item price to match competitor.', TRUE);

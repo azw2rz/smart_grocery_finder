@@ -89,17 +89,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     <div class="container">
         <h3>Search Results</h3>
         <div class="row justify-content-center">  
-        <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
-
             <?php if ($result_type == ""): ?>
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="100%"><b>None</b></th>     
-                        <!-- <th><b>Update?</b></th>
-                        <th><b>Delete?</b></th> -->
-                    </tr>
-                </thead>
+
             <?php elseif ($result_type == "item"): ?>
+                
+            <?php elseif ($result_type == "store"): ?>
+
+            <?php elseif ($result_type == "storeItemsID"): ?>
+                
+            <?php elseif ($result_type == "itemInStores"): ?>
+                
+            <?php endif; ?>
+
+            <?php if (empty($list_of_results)): ?>
+                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No results found</td>
+                    </tr>
+                </table>
+            <?php elseif ($result_type == "item"): ?>
+                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
                     <tr style="background-color:#B0B0B0">
                         <th width="10%"><b>ItemID</b></th>
@@ -110,57 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         <th width="10%"><b>Stores</b></th>
                     </tr>
                 </thead>
-            <?php elseif ($result_type == "store"): ?>
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="10%"><b>StoreID</b></th>
-                        <th width="20%"><b>Name</b></th> 
-                        <th width="15%"><b>Store Category</b></th>        
-                        <th width="10%"><b>Street #</b></th>        
-                        <th width="20%"><b>Street Name</b></th>        
-                        <th width="10%"><b>City</b></th>        
-                        <th width="5%"><b>State</b></th>        
-                        <th width="10%"><b>ZIP Code</b></th>   
-                        <th width="10%"><b>Items</b></th>
-                    </tr>
-                </thead>
-            <?php elseif ($result_type == "storeItemsID"): ?>
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="5%"><b>StoreID</b></th>
-                        <th width="15%"><b>Store Name</b></th> 
-                        <th width="8%"><b>ZIP Code</b></th>        
-                        <th width="5%"><b>ItemID</b></th>
-                        <th width="15%"><b>Item Name</b></th> 
-                        <th width="15%"><b>Brand</b></th> 
-                        <th width="10%"><b>Price</b></th> 
-                        <th width="5%"><b>Weight</b></th> 
-                        <th width="5%"><b>Unit</b></th> 
-                        <th width="20%"><b>Price per Unit</b></th>
-                    </tr>
-                </thead>
-            <?php elseif ($result_type == "itemInStores"): ?>
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="5%"><b>ItemID</b></th>
-                        <th width="15%"><b>Item Name</b></th> 
-                        <th width="15%"><b>Brand</b></th> 
-                        <th width="5%"><b>StoreID</b></th>
-                        <th width="15%"><b>Store Name</b></th> 
-                        <th width="8%"><b>ZIP Code</b></th>        
-                        <th width="10%"><b>Price</b></th> 
-                        <th width="5%"><b>Weight</b></th> 
-                        <th width="5%"><b>Unit</b></th> 
-                        <th width="20%"><b>Price per Unit</b></th>
-                    </tr>
-                </thead>
-            <?php endif; ?>
-
-            <?php if (empty($list_of_results)): ?>
-                <tr>
-                    <td colspan="5" style="text-align: center;">No results found</td>
-                </tr>
-            <?php elseif ($result_type == "item"): ?>
                 <?php foreach ($list_of_results as $item_info): ?>
                     <tr>
                         <td><?php echo $item_info['item_ID']; ?></td>
@@ -177,7 +135,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                </table>
             <?php elseif ($result_type == "store"): ?>
+                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="10%"><b>StoreID</b></th>
+                        <th width="20%"><b>Name</b></th> 
+                        <th width="15%"><b>Store Category</b></th>        
+                        <th width="10%"><b>Street #</b></th>        
+                        <th width="20%"><b>Street Name</b></th>        
+                        <th width="10%"><b>City</b></th>        
+                        <th width="5%"><b>State</b></th>        
+                        <th width="10%"><b>ZIP Code</b></th>   
+                        <th width="10%"><b>Items</b></th>
+                    </tr>
+                </thead>
                 <?php foreach ($list_of_results as $store_info): ?>
                     <tr>
                         <td><?php echo $store_info['store_ID']; ?></td>
@@ -197,42 +170,129 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                         </td>                        
                     </tr>
                 <?php endforeach; ?>
+                </table>
             <?php elseif ($result_type == "storeItemsID"): ?>
-                <?php foreach ($list_of_results as $store_info): ?>
-                    <tr>
-                        <td><?php echo $store_info['store_ID']; ?></td>
-                        <td><?php echo $store_info['store_name']; ?></td>
-                        <td><?php echo $store_info['zipcode']; ?></td>
-                        <td><?php echo $store_info['item_ID']; ?></td>
-                        <td><?php echo $store_info['item_name']; ?></td>
-                        <td><?php echo $store_info['item_brand']; ?></td>
-                        <td><?php echo $store_info['price']; ?></td>
-                        <td><?php echo $store_info['weight']; ?></td>
-                        <td><?php echo $store_info['unit']; ?></td>
-                        <td><?php echo $store_info['price_per_unit']; ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <div id="storeItemContainer"> </div>
             <?php elseif ($result_type == "itemInStores"): ?>
-                <?php foreach ($list_of_results as $store_info): ?>
-                    <tr>
-                        <td><?php echo $store_info['item_ID']; ?></td>
-                        <td><?php echo $store_info['item_name']; ?></td>
-                        <td><?php echo $store_info['item_brand']; ?></td>
-                        <td><?php echo $store_info['store_ID']; ?></td>
-                        <td><?php echo $store_info['store_name']; ?></td>
-                        <td><?php echo $store_info['zipcode']; ?></td>
-                        <td><?php echo $store_info['price']; ?></td>
-                        <td><?php echo $store_info['weight']; ?></td>
-                        <td><?php echo $store_info['unit']; ?></td>
-                        <td><?php echo $store_info['price_per_unit']; ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <div id="itemStoreContainer"> </div>
             <?php endif; ?>
-
-        </table>
     </div>   
 
 
+    <script>
+        var list_of_results = <?php echo json_encode($list_of_results); ?>;
+        var order = false;
+
+        function updateResults(){
+            list_of_results = <?php echo json_encode($list_of_results);?>;
+        }
+
+        function sortItemsBy(property, whichFunc) {
+            order = !order;
+            list_of_results.sort((a, b) => {
+                if (order) {
+                    return a[property] - b[property];
+                } else {
+                    return b[property] - a[property];
+                }
+            });
+            if(whichFunc=='1'){
+                generateItemStoreTable();
+            }else{
+                generateStoreItemTable();
+            }
+        }
+
+        function generateItemStoreTable(){
+            let html = `
+                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                <thead>
+                <tr style="background-color:#B0B0B0">
+                <th width="5%"><b>ItemID</b></th>
+                <th width="15%"><b>Item Name</b></th>
+                <th width="15%"><b>Brand</b></th>
+                <th width="5%"><b>StoreID</b></th>
+                <th width="15%"><b>Store Name</b></th>
+                <th width="8%"><b>ZIP Code</b></th>
+                <th width="10%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                <th width="5%"><b>Weight</b></th>
+                <th width="5%"><b>Unit</b></th>
+                <th width="20%"><b>Price per Unit</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                </tr>
+                </thead>`;
+
+            list_of_results.forEach(item_info => {
+                html += `
+                <tr>
+                    <td>${item_info.item_ID}</td>
+                    <td>${item_info.item_name}</td>
+                    <td>${item_info.item_brand}</td>
+                    <td>${item_info.store_ID}</td>
+                    <td>${item_info.store_name}</td>
+                    <td>${item_info.zipcode}</td>
+                    <td>${item_info.price}</td>
+                    <td>${item_info.weight}</td>
+                    <td>${item_info.unit}</td>
+                    <td>${item_info.price_per_unit}</td>
+                </tr>`;
+            });
+
+            html += `
+            </table>`;
+
+            document.getElementById('itemStoreContainer').innerHTML = html;
+        }
+
+        function generateStoreItemTable(){
+            let html = `
+            <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="5%"><b>StoreID</b></th>
+                        <th width="15%"><b>Store Name</b></th> 
+                        <th width="8%"><b>ZIP Code</b></th>        
+                        <th width="5%"><b>ItemID</b></th>
+                        <th width="15%"><b>Item Name</b></th> 
+                        <th width="15%"><b>Brand</b></th> 
+                        <th width="10%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                        <th width="5%"><b>Weight</b></th> 
+                        <th width="5%"><b>Unit</b></th> 
+                        <th width="20%"><b>Price per Unit</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
+                    </tr>
+                </thead>`;
+
+            list_of_results.forEach(item_info => {
+                html += `
+                <tr>
+                    <td>${item_info.store_ID}</td>
+                    <td>${item_info.store_name}</td>
+                    <td>${item_info.zipcode}</td>
+                    <td>${item_info.item_ID}</td>
+                    <td>${item_info.item_name}</td>
+                    <td>${item_info.item_brand}</td>
+                    <td>${item_info.price}</td>
+                    <td>${item_info.weight}</td>
+                    <td>${item_info.unit}</td>
+                    <td>${item_info.price_per_unit}</td>
+                </tr>`;
+            });
+
+            html += `
+            </table>`;
+            document.getElementById('storeItemContainer').innerHTML = html;
+        }
+        console.log(list_of_results[0]);
+        try{
+            generateStoreItemTable();
+        }catch(error){
+            console.log(error);
+        }
+        try{
+            generateItemStoreTable();
+        }catch(error){
+            console.log(error);
+        }
+    </script>
 
 </body>
 

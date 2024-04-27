@@ -41,7 +41,7 @@ function changePassword($user_ID, $newPassword, $conf) {
 function checkLogin($email, $password) {
     global $db;
 
-    $query = "SELECT user_ID, email, password FROM _User WHERE email = :email";
+    $query = "SELECT user_ID, email, password, admin FROM _User WHERE email = :email";
 
     $statement = $db->prepare($query);
 
@@ -100,6 +100,22 @@ function signUp($first_name, $last_name, $email, $password, $password_conf) {
     $statement->closeCursor();
 
     return array("success"=>true, "cause"=>"none");
+}
+
+function checkAdmin($user_ID) {
+    global $db;
+
+    $query = "SELECT admin FROM _User WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $result = $statement->fetch();
+    $statement->closeCursor();
+
+    return $result["admin"];
 }
 
 function searchReqeust($searchType, $searchInput) {
@@ -244,6 +260,282 @@ function getStores() {
     echo "Number of total stores: " . $itemCount;
 
     return $result;
+}
+
+function getItems() {
+    global $db;
+
+    $query = "SELECT * FROM Item";
+    $statement = $db->prepare($query);       // compile
+    $statement->execute();
+    $result = $statement->fetchAll();      // fetch all results
+    $statement->closeCursor();
+
+    $itemCount = count($result);
+
+    echo "Number of total items: " . $itemCount;
+
+    return $result;
+}
+
+function requestChangeAddStore($user_ID, $store_name, $street_number, $street_name,
+                                $city, $state, $zip_code, $notes)
+{
+    global $db;
+
+    $change_details = "(add store) Name: \"$store_name\", \"$street_number $street_name, $city $state $zip_code\" (notes) \"$notes\"";
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $query = "INSERT INTO ChangeRequest (user, request_time, change_details, accepted) 
+                VALUES (:user_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"add store\" change request.";
+}
+
+function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $change_details = "(remove store) Name: \"$store_name\", reason: \"$reason\" (notes) \"$notes\"";
+
+    $query = "INSERT INTO ChangeRequest (user, store, request_time, change_details, accepted) 
+                VALUES (:user_ID, :store_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"remove store\" change request.";
+}
+
+function requestChangeAddStoreItem($user_ID, $store, $item_name,
+                                    $item_brand, $price, $weight, $unit, $notes)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $change_details = "(add store item) Store: \"$store_name\", Item info: name-\"$item_name\" brand-\"$item_brand\" price-\"$price\" weight-\"$weight\" unit-\"$unit\" (notes) \"$notes\"";
+
+    $query = "INSERT INTO ChangeRequest (user, store, request_time, change_details, accepted) 
+                VALUES (:user_ID, :store_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"add store item\" change request.";
+}     
+
+function requestChangeChangePrice($user_ID, $store, $item_name,
+                                    $item_brand, $price, $weight, $unit, $notes)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d_H:i:s');
+
+    $change_details = "(change price) Store: \"$store_name\", Item info: name-\"$item_name\" brand-\"$item_brand\" new price-\"$price\" new weight-\"$weight\" new unit-\"$unit\" (notes) \"$notes\"";
+
+    $query = "INSERT INTO ChangeRequest (user, store, request_time, change_details, accepted) 
+                VALUES (:user_ID, :store_ID, :time, :change_details, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':time', $dateTime, PDO::PARAM_STR);
+    $statement->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added \"change price\" change request.";
+}                                    
+
+function getChangeRequests()
+{
+    global $db;
+
+    $query = "SELECT * FROM ChangeRequest WHERE accepted=false ORDER BY request_time DESC";
+    $statement = $db->prepare($query);       // compile
+    $statement->execute();
+    $result1 = $statement->fetchAll();      // fetch all results
+    $statement->closeCursor();
+
+    $query = "SELECT * FROM ChangeRequest WHERE accepted=true ORDER BY request_time DESC LIMIT 10";
+    $statement = $db->prepare($query);       // compile
+    $statement->execute();
+    $result2 = $statement->fetchAll();      // fetch all results
+    $statement->closeCursor();
+
+    $result = array("unprocessed"=>$result1, "processed"=>$result2);
+
+    return $result;
+}
+
+function adminAddStore($store_name, $street_num, $street_name,
+                        $city, $state, $zip_code)
+{
+    global $db;
+
+    $query = "CALL addStore(:store_name, :street_num, :street_name, :city, :state, :zipcode);";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':store_name', $store_name, PDO::PARAM_STR);
+    $statement->bindValue(':street_num', $street_num, PDO::PARAM_STR);
+    $statement->bindValue(':street_name', $street_name, PDO::PARAM_STR);
+    $statement->bindValue(':city', $city, PDO::PARAM_STR);
+    $statement->bindValue(':state', $state, PDO::PARAM_STR);
+    $statement->bindValue(':zipcode', $zip_code, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added store \"$store_name\".";
+}
+
+function adminRemoveStore($store)
+{
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+
+    $query = "DELETE FROM store WHERE store_ID = :store_id";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':store_id', $store_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Removed store \"$store_name\".";
+}
+
+function adminAddStoreItem($store, $item, $price, $weight, $unit)
+{
+    // does not check if item already exists in the store
+
+    global $db;
+
+    $price = intval($price);
+    $weight = intval($weight);
+    $price_per_unit = round($price/$weight, 2);
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+
+    list($item_ID, $item_name) = explode(':', $item, 2);
+    $item_ID = intval(trim($item_ID));
+
+    $query = "INSERT INTO storeItems (store, item, price, weight, unit, price_per_unit)
+                values (:store, :item, :price, :weight, :unit, :price_per_unit)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $statement->bindValue(':price', $price, PDO::PARAM_INT);
+    $statement->bindValue(':weight', $weight, PDO::PARAM_INT);
+    $statement->bindValue(':unit', $unit, PDO::PARAM_STR);
+    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Added item \"$item_name\" to store \"$store_name\".";
+}
+
+function adminChangePrice($store, $item, $price, $weight, $unit)
+{
+    global $db;
+
+    $price = intval($price);
+    $weight = intval($weight);
+    $price_per_unit = round($price/$weight, 2);
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+
+    list($item_ID, $item_name) = explode(':', $item, 2);
+    $item_ID = intval(trim($item_ID));
+
+    $query = "UPDATE storeItems
+                SET price = :price, weight = :weight, unit = :unit, price_per_unit = :price_per_unit
+                WHERE store = :store AND item = :item";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $statement->bindValue(':price', $price, PDO::PARAM_INT);
+    $statement->bindValue(':weight', $weight, PDO::PARAM_INT);
+    $statement->bindValue(':unit', $unit, PDO::PARAM_STR);
+    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+    
+    echo "Change price of item \"$item_name\" from store \"$store_name\".";
+}
+
+function acceptChangeRequest($request_ID) {
+    global $db;
+    
+    $query = "UPDATE changeRequest
+                SET accepted = true
+                WHERE request_ID = :request_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':request_ID', $request_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function rejectChangeRequest($request_ID) {
+    global $db;
+
+    $query = "UPDATE changeRequest
+                SET accepted = false
+                WHERE request_ID = :request_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':request_ID', $request_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
 }
 
 ?>

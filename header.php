@@ -6,6 +6,11 @@ require_once("request-db.php");
 <?php
 session_start();
 
+$isAdmin = false;
+if ($_SESSION) {
+    $isAdmin = checkAdmin($_SESSION['user_id']);
+}
+
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
     // echo "<p>Logging out</p>";
 
@@ -15,6 +20,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
     header("Location: login.php");
     exit;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -30,13 +36,31 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">  
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">  
         <link rel="stylesheet" href="grocery.css">
+        <style>
+        .logo {
+            text-decoration: none;
+            color: inherit;
+        }
+        .logo:hover {
+            text-decoration: none; /* Remove underline on hover */
+            color: inherit; /* Use the color inherited from its parent on hover */
+        }
+        </style>
     </head>
 
     <body>
         <header>
             <div class="header-container">
-                <h1>Smart Grocery Finder</h1>
+                <?php if ($isAdmin): ?>
+                    <a class="logo" href="grocery.php"><h1>Smart Grocery Finder (Admin)</h1></a>
+                <?php else: ?>
+                    <a class="logo" href="grocery.php"><h1>Smart Grocery Finder</h1></a>
+                <?php endif; ?>
                 <div class="header-buttons">
+                    <?php if ($isAdmin): ?>
+                        <a href="admin.php" id="adminBtn" name="adminBtn" 
+                        class="btn btn-primary" title="admin portal">Admin Page</a>
+                    <?php endif; ?>
                     <?php if ($_SESSION): ?>
                         <a href="request_change.php" id="requestBtn" name="requestBtn" 
                         class="btn btn-primary" title="request change form">Request Changes</a>

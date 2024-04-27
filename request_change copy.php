@@ -19,28 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
     if (!empty($_POST['submitBtn']))    // $_GET['....']
     {
         if ($_POST['requestType'] == 'addStore') {
-            requestChangeAddStore(
-                $_SESSION["user_id"], $_POST['storeName'], $_POST['streetNumber'], 
-                $_POST['streetName'], $_POST['city'], $_POST['state'], 
-                $_POST['zipCode'], $_POST['notesText']
-            );
-        } else if ($_POST['requestType'] == 'removeStore') {
-            requestChangeRemoveStore(
-                $_SESSION["user_id"], $_POST['storeSearch'], 
-                $_POST['removeStoreReason'], $_POST['notesText']
-            );
-        } else if ($_POST['requestType'] == 'addStoreItem') {
-            requestChangeAddStoreItem(
-                $_SESSION["user_id"], $_POST['storeSearch2'], $_POST['itemName'],
-                $_POST['itemBrand'], $_POST['price'], $_POST['weight'], 
-                $_POST['unit'], $_POST['notesText']
-            );
-        } else if ($_POST['requestType'] == 'changePrice') {
-            requestChangeChangePrice(
-                $_SESSION["user_id"], $_POST['storeSearch2'], $_POST['itemName'],
-                $_POST['itemBrand'], $_POST['newPrice'], $_POST['newWeight'], 
-                $_POST['newUnit'], $_POST['notesText']
-            );
+            requestChangeAddStore($_SESSION["user_id"], $_POST['storeName'], $_POST['streetNumber'], $_POST['streetName'],
+                                $_POST['city'], $_POST['state'], $_POST['zipCode'], $_POST['notes']);
+            $_SESSION["requestTypeSubmitted"] = 'addStore';
         }
 
         $isFormSubmitted = true;
@@ -56,46 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
-    <style>
-        .search-container {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .store-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            display: none;
-        }
-
-        .store-list div {
-            padding: 8px;
-            cursor: pointer;
-        }
-
-        .store-list div:hover {
-            background-color: #f2f2f2;
-        }
-    </style>
 </head>
-<body>
+<body onload="hideFormFields()">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
@@ -132,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <tr id='addStore1' class='hidden'>
+                <tr id='addStore1'>
                     <td width="33%">
                         <div class='mb-3'>
                             Store Name:
@@ -155,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <tr id='addStore2' class='hidden'>
+                <tr id='addStore2'>
                     <td width="33%">
                         <div class='mb-3'>
                             City:
@@ -178,23 +121,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <tr id='removeStore' class='hidden'>
+                <tr id='removeStore'>
                     <td width="50%">
-                        <div class='mb-3' width="100%">
-                            Select Store:
-                            <div class="search-container">
-                                <input width="100%" type="text" class="search-input form-input" name="storeSearch" id="storeSearch" placeholder="Search for a store" onkeyup="filterStores('storeSearch', 'storeList')">
-                                <div class="store-list" id="storeList">
-                                    <?php
-                                    // Retrieve the list of stores from the database
-                                    $stores = getStores();
-                                    
-                                    foreach ($stores as $store) {
-                                        echo "<div onclick=\"selectStore('storeSearch', 'storeList', '" . $store['store_ID'] . "', '" . $store['name'] . "')\">" . $store['store_ID'] . ": " . $store['name'] . "</div>";
-                                    }
-                                    ?>
-                                </div>
-                            </div>
+                        <div class='mb-3'>
+                            Choose a store:
+                            <select class='chosen-select form-control' id='store' name='store'>
+                                <option value=''></option>
+                                <?php
+                                // Retrieve the list of stores from the database
+                                $stores = getStores();
+                                
+                                foreach ($stores as $store) {
+                                    echo "<option value='" . $store['store_ID'] . "'>" . $store['store_ID'] .": ". $store['name'] . "</option>";
+                                }
+                                ?>
+                            </select>
                         </div>
                     </td>
                     <td>
@@ -212,23 +153,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <tr id='storeItem' class='hidden'>
+                <tr id='storeItem'>
                     <td width="33%">
-                        <div class='mb-3' width="100%">
-                            Select Store:
-                            <div class="search-container">
-                                <input width="100%" type="text" class="search-input form-input" name="storeSearch2" id="storeSearch2" placeholder="Search for a store" onkeyup="filterStores('storeSearch2', 'storeList2')">
-                                <div class="store-list" id="storeList2">
-                                    <?php
-                                    // Retrieve the list of stores from the database
-                                    $stores = getStores();
-                                    
-                                    foreach ($stores as $store) {
-                                        echo "<div onclick=\"selectStore('storeSearch2', 'storeList2', '" . $store['store_ID'] . "', '" . $store['name'] . "')\">" . $store['store_ID'] . ": " . $store['name'] . "</div>";
-                                    }
-                                    ?>
-                                </div>
-                            </div>
+                        <div class='mb-3'>
+                            Choose a store:
+                            <select class='chosen-select form-control' id='store' name='store' style="width:50%;">
+                                <option value=''></option>
+                                <?php
+                                // Retrieve the list of stores from the database
+                                $stores = getStores();
+                                
+                                foreach ($stores as $store) {
+                                    echo "<option value='" . $store['store_ID'] . "'>" . $store['store_ID'] .": ". $store['name'] . "</option>";
+                                }
+                                ?>
+                            </select>
                         </div>
                     </td>
                     <td width="33%">
@@ -246,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <tr id='addStoreItem' class='hidden'>
+                <tr id='addStoreItem'>
                     <td>
                         <div class='mb-3'>
                             Price ($):
@@ -263,13 +202,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Unit (e.g. kg):
+                            Unit (lowercase letters):
                             <input type='text' class='form-control' id='unit' name='unit'
                                 value="" />
                         </div>
                     </td>
                 </tr>
-                <tr id='changePrice' class='hidden'>
+                <tr id='changePrice'>
                     <td>
                         <div class='mb-3'>
                             New Price ($):
@@ -286,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     </td>
                     <td>
                         <div class='mb-3'>
-                            Unit (e.g. kg):
+                            Unit (lowercase letters):
                             <input type='text' class='form-control' id='newUnit' name='newUnit'
                                 value="" />
                         </div>
@@ -297,11 +236,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     placeholder='Format: yyyy-mm-dd' pattern="\d{4}-\d{1,2}-\d{1,2}"
                     value="" />
                 </tr> -->
-                <tr id='notes' class='hidden'>
+                <tr id='notes' style="display: none;">
                     <td colspan=3>
                         <div class="mb-3">
                             Other Notes:
-                            <textarea class='form-control' id='notesText' name='notesText' rows='4'></textarea>
+                            <input type='text' class='form-control' id='notes' name='notes'
+                                value="" />
                         </div>
                     </td>
                 </tr>
@@ -332,43 +272,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
 
 
 <script>
-    function filterStores(storeSearch, storeList) {
-        var input = document.getElementById(storeSearch);
-        var filter = input.value.toUpperCase();
-        var storeList = document.getElementById(storeList);
-        var stores = storeList.getElementsByTagName('div');
 
-        for (var i = 0; i < stores.length; i++) {
-            var storeName = stores[i].textContent || stores[i].innerText;
-            if (storeName.toUpperCase().indexOf(filter) > -1) {
-                stores[i].style.display = '';
-            } else {
-                stores[i].style.display = 'none';
-            }
-        }
-
-        storeList.style.display = 'block';
-    }
-
-    function selectStore(storeSearch, storeList, storeID, storeName) {
-        var input = document.getElementById(storeSearch);
-        input.value = storeID + ": " + storeName;
-        document.getElementById(storeList).style.display = 'none';
-    }
-
-    document.addEventListener('click', function(event) {
-        var searchContainer = document.querySelector('.search-container');
-        if (!searchContainer.contains(event.target)) {
-            document.getElementById('storeList').style.display = 'none';
-        }
+// for store search bar
+$(document).ready(function() {
+    $('.chosen-select').chosen({
+        search_contains: true,
+        no_results_text: "No stores found",
+        allow_single_deselect: true,
+        placeholder_text_single: "Select a store"
     });
-
-    document.addEventListener('click', function(event) {
-        var searchContainer = document.querySelector('.search-container');
-        if (!searchContainer.contains(event.target)) {
-            document.getElementById('storeList2').style.display = 'none';
-        }
-    });
+});
 
 const validationConfig = {
     addStore: ['storeName', 'streetNumber', 'streetName', 'city', 'state', 'zipCode'],
@@ -396,10 +309,23 @@ function validateForm() {
 }
 
 function hideFormFields() {
-    var formRows = document.querySelectorAll('#addStore1, #addStore2, #removeStore, #storeItem, #addStoreItem, #changePrice, #notes');
-    formRows.forEach(function(row) {
-        row.classList.add('hidden');
-    });
+    var requestType = document.getElementById('requestType').value;
+    var addStoreFields1 = document.getElementById('addStore1');
+    var addStoreFields2 = document.getElementById('addStore2');
+    var removeStoreFields = document.getElementById('removeStore');
+    var storeItemFields = document.getElementById('storeItem');
+    var addStoreItemFields = document.getElementById('addStoreItem');
+    var changePriceFields = document.getElementById('changePrice');
+    var notesField = document.getElementById('notes');
+
+    // Hide all fields by default
+    addStoreFields1.style.display = 'none';
+    addStoreFields2.style.display = 'none';
+    removeStoreFields.style.display = 'none';
+    storeItemFields.style.display = 'none';
+    addStoreItemFields.style.display = 'none';
+    changePriceFields.style.display = 'none';
+    notesField.style.display = 'none';
 }
 
 function updateFormFields() {
@@ -412,25 +338,31 @@ function updateFormFields() {
     var changePriceFields = document.getElementById('changePrice');
     var notesField = document.getElementById('notes');
 
-    // Hide all fields
-    hideFormFields();
+    // Hide all fields by default
+    addStoreFields1.style.display = 'none';
+    addStoreFields2.style.display = 'none';
+    removeStoreFields.style.display = 'none';
+    storeItemFields.style.display = 'none';
+    addStoreItemFields.style.display = 'none';
+    changePriceFields.style.display = 'none';
+    notesField.style.display = 'none';
 
-    // Show fields based on the selected request type
+    // Show/hide fields based on the selected request type
     if (requestType === 'addStore') {
-        addStoreFields1.classList.remove('hidden');
-        addStoreFields2.classList.remove('hidden');
-        notesField.classList.remove('hidden');
+        addStoreFields1.style.display = 'table-row';
+        addStoreFields2.style.display = 'table-row';
+        notesField.style.display = 'table-row';
     } else if (requestType === 'removeStore') {
-        removeStoreFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
+        removeStoreFields.style.display = 'table-row';
+        notesField.style.display = 'table-row';
     } else if (requestType === 'addStoreItem') {
-        storeItemFields.classList.remove('hidden');
-        addStoreItemFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
+        storeItemFields.style.display = 'table-row';
+        addStoreItemFields.style.display = 'table-row';
+        notesField.style.display = 'table-row';
     } else if (requestType === 'changePrice') {
-        storeItemFields.classList.remove('hidden');
-        changePriceFields.classList.remove('hidden');
-        notesField.classList.remove('hidden');
+        storeItemFields.style.display = 'table-row';
+        changePriceFields.style.display = 'table-row';
+        notesField.style.display = 'table-row';
     }
 }
 </script>

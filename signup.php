@@ -46,10 +46,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
         }
     }
-    else if (!empty($_POST['login'])) {
-        header("Location: login.php");
-        exit;
-    }
 }
 ?>
 
@@ -65,8 +61,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <div class="signup-container">
-        <h2>Signup</h2>
+    <div class="container">
+        <h2 style="margin-bottom:20px;">Signup</h2>
         <?php if($isFormSubmitted && isset($error)) echo "<p>$error</p>"; ?>
         <form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
             <label for="first-name">First Name:</label><br>
@@ -79,8 +75,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" id="password" name="password"><br>
             <label for="password-conf">Confirm Password:</label><br>
             <input type="password" id="password-conf" name="password-conf"><br>
-            <input type="submit" name="signup" value="Signup">
-            <input type="submit" name="login" value="Login">
+            <div style="margin-top:20px;">
+                <input type="submit" name="signup" value="Signup">
+                <a style="margin-left:20px;" href="login.php">Login</a>
+            </div>
         </form>
     </div>  
 </body>
