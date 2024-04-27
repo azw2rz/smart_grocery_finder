@@ -2,10 +2,10 @@
 
 <?php   // form handling
 
-if (!$_SESSION["user_id"]) {
-    header("Location: login.php");
-    exit;
-}
+// if (!$_SESSION["user_id"]) {
+//     header("Location: login.php");
+//     exit;
+// }
 
 // echo $_SESSION["user_id"];
 

@@ -2,11 +2,11 @@
 // Remember to start the database server (or GCP SQL instance) before trying to connect to it
 ////////////////////////////////////////////
 /** S24, PHP (on Google Standard App Engine) connect to MySQL instance (GCP) **/
-// $username = 'root';                       // or your username
-// $password = 'your-root-password';     
-// $host = 'instance-connection-name';       // e.g., 'cs4750:us-east4:db-demo'; 
-// $dbname = 'your-database-name';           // e.g., 'guestbook';
-// $dsn = "mysql:unix_socket=/cloudsql/instance-connection-name;dbname=your-database-name";
+$username = 'root';                       // or your username
+$password = 'QWer1234!';     
+$host = 'smart-grocery-finder:us-east4:smart-grocery-finder';       // e.g., 'cs4750:us-east4:db-demo'; 
+$dbname = 'smart-grocery-finder';           // e.g., 'guestbook';
+$dsn = "mysql:unix_socket=/cloudsql/$host;dbname=$dbname";
 //       e.g., "mysql:unix_socket=/cloudsql/cs4750:us-east4:db-demo;dbname=guestbook";
 
 // to get instance connection name, go to GCP SQL overview page
@@ -14,10 +14,10 @@
 
 /** S24, PHP (on local XAMPP or CS server) connect to MySQL instance (GCP) **/
 // $username = 'root';
-// $password = 'your-root-password';
-// $host = 'instance-connection-name';       // e.g., 'cs4750:us-east4:db-demo'; 
-// $dbname = 'your-database-name;;           // e.g., 'guestbook';
-// $dsn = "mysql:host=your-SQL-public-IP-address;dbname=your-database-name";   // connect PHP (XAMPP) to DB (GCP)
+// $password = 'QWer1234!';
+// $host = 'smart-grocery-finder:us-east4:smart-grocery-finder';       // e.g., 'cs4750:us-east4:db-demo'; 
+// $dbname = 'smart-grocery-finder';           // e.g., 'guestbook';
+// $dsn = "mysql:host=35.245.35.72;dbname=smart-grocery-finder";   // connect PHP (XAMPP) to DB (GCP)
 //       e.g., "mysql:host=99.99.999.99;dbname=$dbname";   
 
 // to get public IP addres of the SQL instance, go to GCP SQL overview page
@@ -29,12 +29,21 @@
 // 2. On the SQL connections page, add authorized networks, enter the IP address
 ////////////////////////////////////////////
 
+
+
+
 /** S24, PHP (on GCP, local XAMPP, or CS server) connect to MySQL (on local XAMPP) **/
-$username = 'pma';
-$password = '';
-$host = 'localhost:3306';
-$dbname = 'azw2rz';    
-$dsn = "mysql:host=$host;dbname=$dbname";  
+// $username = 'pma';
+// $password = '';
+// $host = 'localhost:3306';
+// $dbname = 'azw2rz';    
+// $dsn = "mysql:host=$host;dbname=$dbname";  
+
+
+
+
+
+
 ////////////////////////////////////////////
 
 /** S24, PHP (on GCP, local XAMPP, or CS server) connect to MySQL (on CS server) **/
