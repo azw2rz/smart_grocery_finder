@@ -41,7 +41,7 @@ function changePassword($user_ID, $newPassword, $conf) {
 function checkLogin($email, $password) {
     global $db;
 
-    $query = "SELECT user_ID, email, password, admin FROM _User WHERE email = :email";
+    $query = "SELECT user_ID, email, password, [admin] FROM _User WHERE email = :email";
 
     $statement = $db->prepare($query);
 
