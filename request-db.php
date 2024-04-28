@@ -786,25 +786,12 @@ function requestChangeAddHistory($user_ID, $item_ID)
     echo "request history";
     global $db;
 
-    // Get the current quantity for the specified user and item
-    $getQuantityQuery = "SELECT quantity FROM PurchaseHistory WHERE user = :user AND item = :item ORDER BY purchase_ID DESC LIMIT 1";
-    $quantityStmt = $db->prepare($getQuantityQuery);
-    $quantityStmt->bindValue(':user', $user_ID, PDO::PARAM_INT);
-    $quantityStmt->bindValue(':item', $item_ID, PDO::PARAM_INT);
-    $quantityStmt->execute();
-    $result = $quantityStmt->fetch(PDO::FETCH_ASSOC);
-    $quantityStmt->closeCursor();
-    
-    // If the item exists, increment the quantity. If not, start with quantity 1.
-    $newQuantity = $result ? $result['quantity'] + 1 : 1;
-
     $query = "INSERT INTO PurchaseHistory (user, item, quantity) 
-                VALUES (:user, :item, :quantity)";
+                VALUES (:user, :item, 1)";
     $statement = $db->prepare($query);
 
     $statement->bindValue(':user', $user_ID, PDO::PARAM_INT);
     $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
-    $statement->bindValue(':quantity', $newQuantity, PDO::PARAM_INT);
 
     try {
         $statement->execute();
@@ -816,6 +803,25 @@ function requestChangeAddHistory($user_ID, $item_ID)
     $statement->closeCursor();
 }
 
+function getHistory($user_ID) {
+    global $db;
 
+    $query = "SELECT DISTINCT p.item, i.brand, i.name, i.item_category, SUM(p.quantity) AS total_quantity
+              FROM PurchaseHistory p
+              JOIN Item i ON p.item = i.item_ID
+              WHERE p.user = :user_id
+              GROUP BY p.item, i.brand, i.name, i.item_category
+              ORDER BY p.purchase_ID DESC";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_id', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $favorites = $statement->fetchAll();
+    $statement->closeCursor();
+    
+    return $favorites;
+}
 
 ?>

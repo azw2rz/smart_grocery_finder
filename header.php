@@ -74,6 +74,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
                                 <a href="my_favorites.php">My Favorites</a>
                                 <a href="my_watchlist.php">My Watchlist</a>
                                 <a href="my_reviews.php">My Reviews</a>
+                                <a href="my_history.php">My History</a>
                                 <form method="post" class="logout-form" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
                                     <input type="submit" class="logout-btn" name="logout-btn" value="Logout">
                                 </form> 
