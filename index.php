@@ -38,6 +38,9 @@ switch ($path) {
     case '/my_watchlist.php':
         require 'my_watchlist.php';
         break;
+    case '/my_memberships.php':
+        require 'my_memberships.php';
+        break;
     case '/request_change.php':
         require 'request_change.php';
         break;

@@ -40,6 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             makeAddressPrimary($_SESSION["user_id"], $address_ID);
         }
     }
+    else if (!empty($_POST["addMembershipBtn"]))
+    {
+        addMembership($_SESSION["user_id"], $_POST["storeSearch"]);
+        echo "Membership added";
+    }
+
     $user_information = getUserInformation($_SESSION["user_id"]);
     $user_addresses = getUserAddresses($_SESSION["user_id"]);
 }
@@ -78,6 +84,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         }
         #editProfileBtn {
             margin-top: 10px;
+        }
+        .search-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .store-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            display: none;
+        }
+
+        .store-list div {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .store-list div:hover {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
@@ -136,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     </div>
 
     <div class="container address-container">
-        <h3 style="margin-bottom:20px; margin-top:10px;">My Addresses</h3>
+        <h2 style="margin-bottom:20px; margin-top:10px;">My Addresses</h2>
         <div class="row justify-content-center">  
             <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
@@ -190,10 +232,76 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
             </table>
         </div>   
     </div>   
+
+    <div class="container">
+        <h2>Add a membership</h2>
+        <form method="post" action="my_profile.php" onsubmit="return validateForm()">
+            <div width="20%">
+                Select Store:
+                <div class="search-container">
+                    <input type="text" class="search-input form-input" name="storeSearch" id="storeSearch" placeholder="Search for a store" onkeyup="filterStores('storeSearch', 'storeList')">
+                    <div class="store-list" id="storeList">
+                        <?php
+                        // Retrieve the list of stores from the database
+                        $stores = getStores();
+                        
+                        foreach ($stores as $store) {
+                            echo "<div onclick=\"selectStore('storeSearch', 'storeList', '" . $store['store_ID'] . "', '" . $store['name'] . "')\">" . $store['store_ID'] . ": " . $store['name'] . "</div>";
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <input style="margin-top:20px; margin-bottom:50px;" type="submit" value="Add" id="addMembershipBtn" name="addMembershipBtn" class="btn btn-primary"/>
+        </form>
     </div>
-    <div height="50px;"></div>
+
+    </div>
 
 </body>
+
+<script>
+    function filterStores(storeSearch, storeList) {
+        var input = document.getElementById(storeSearch);
+        var filter = input.value.toUpperCase();
+        var storeList = document.getElementById(storeList);
+        var stores = storeList.getElementsByTagName('div');
+
+        for (var i = 0; i < stores.length; i++) {
+            var storeName = stores[i].textContent || stores[i].innerText;
+            if (storeName.toUpperCase().indexOf(filter) > -1) {
+                stores[i].style.display = '';
+            } else {
+                stores[i].style.display = 'none';
+            }
+        }
+
+        storeList.style.display = 'block';
+    }
+
+    function selectStore(storeSearch, storeList, storeID, storeName) {
+        var input = document.getElementById(storeSearch);
+        input.value = storeID + ": " + storeName;
+        document.getElementById(storeList).style.display = 'none';
+    }
+
+    document.addEventListener('click', function(event) {
+        var searchContainer = document.querySelector('.search-container');
+        if (!searchContainer.contains(event.target)) {
+            document.getElementById('storeList').style.display = 'none';
+        }
+    });
+
+    function validateForm() {
+        const inputField = document.getElementById("storeSearch");
+        if (inputField && inputField.value.trim() === '') {
+            alert(`Please fill in the store field.`);
+            inputField.focus();
+            return false;
+        }
+    }
+</script>
+
 </html>
 
 <?php include 'footer.php'; ?>
