@@ -36,6 +36,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         $search_input = "";
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    // Process the data (this is where you would add your logic)
+    if (isset($data['itemID']) && isset($data['storeID']) && isset($data['functionID'])) {
+        if($data['functionID']=="1"){
+            requestChangeAddFavorites($_SESSION['user_id'],$data['itemID'],$data['storeID']);
+        }else {
+            http_response_code(400); 
+        }
+        http_response_code(200); 
+    } else {
+        // Missing data
+        http_response_code(400); 
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -207,6 +225,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
             }
         }
 
+        function addToFavorites(itemID, storeID){
+            alert(`Liked item: ${itemID} from store: ${storeID}`);
+            fetch('grocery.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ itemID: itemID, storeID: storeID, functionID: "1"}) // Convert the data to JSON string
+            }).then(response => {
+                console.log(response);
+            })
+        }
+
+        function addToHistory(itemID, storeID){
+            alert(`Added to history for item: ${itemID} from store: ${storeID}`);
+            fetch('grocery.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ itemID: itemID, storeID: storeID, functionID: "2"}) // Convert the data to JSON string
+            }).then(response => {
+                console.log(response);
+            })
+        }
+
         function generateItemStoreTable(){
             let html = `
                 <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
@@ -254,14 +298,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                     <tr style="background-color:#B0B0B0">
                         <th width="5%"><b>StoreID</b></th>
                         <th width="15%"><b>Store Name</b></th> 
-                        <th width="8%"><b>ZIP Code</b></th>        
+                        <th width="5%"><b>ZIP Code</b></th>        
                         <th width="5%"><b>ItemID</b></th>
                         <th width="15%"><b>Item Name</b></th> 
                         <th width="15%"><b>Brand</b></th> 
-                        <th width="10%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                        <th width="5%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
                         <th width="5%"><b>Weight</b></th> 
                         <th width="5%"><b>Unit</b></th> 
-                        <th width="20%"><b>Price per Unit</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
+                        <th width="12%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
+                        <th width="5%"></th> 
+                        <th width="5%"></th> 
                     </tr>
                 </thead>`;
 
@@ -278,6 +324,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                     <td>${item_info.weight}</td>
                     <td>${item_info.unit}</td>
                     <td>${item_info.price_per_unit}</td>
+                    <td><button class="btn btn-primary" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
+                    <td><button class="btn btn-primary" onclick="addToHistory(${item_info.item_ID},${item_info.store_ID})">Bought</button></td>
                 </tr>`;
             });
 
