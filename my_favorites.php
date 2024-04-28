@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["toggle_notification"])
         // Check if the update was successful
         if ($success) {
             // Redirect back to favorites.php to update the UI
-            echo "<script>window.location.href = 'favorites.php';</script>";
+            echo "<script>window.location.href = 'my_favorites.php';</script>";
 
             exit;
         } else {
