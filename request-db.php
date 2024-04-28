@@ -41,7 +41,7 @@ function changePassword($user_ID, $newPassword, $conf) {
 function checkLogin($email, $password) {
     global $db;
 
-    $query = "SELECT user_ID, email, password, [admin] FROM _User WHERE email = :email";
+    $query = "SELECT user_ID, email, password FROM _User WHERE email = :email";
 
     $statement = $db->prepare($query);
 
@@ -537,5 +537,32 @@ function rejectChangeRequest($request_ID) {
     $statement->execute();
     $statement->closeCursor();
 }
+
+function requestChangeAddFavorites($user_ID,  $item_ID, $store_ID)
+{
+    echo "request favorite";
+    global $db;
+
+    $dateTime = new DateTime();
+    $dateTime = $dateTime->format('Y-m-d H:i:s');
+    $query = "INSERT INTO Favorites (user, item, store, added_date, notification_enabled) 
+                VALUES (:user, :item, :store, :added_date, false)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':added_date', $dateTime, PDO::PARAM_STR);
+
+    try {
+        $statement->execute();
+        echo "Added 'add to favorite' request.";
+    } catch (PDOException $e) {
+        echo "Error adding favorite: " . $e->getMessage();
+    }
+    
+    $statement->closeCursor();
+}
+
 
 ?>
