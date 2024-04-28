@@ -12,17 +12,19 @@ if (!$_SESSION["user_id"]) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Change Submitted (Admin)</title>
+    <title>Review Submitted</title>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
-                <h2>Change Submitted Successfully (Admin)</h2>
-                <p>Your database change has been submitted successfully.</p>
-                <p><a href="admin.php" class="btn btn-primary" style="margin-top:10px;">Go back to admin page</a></p>
+                <h2>Review Submitted Successfully</h2>
+                <p>Your review has been submitted successfully.</p>
+                <p><a href="write_review.php" class="btn btn-primary" style="margin-top:10px;">Go back to form</a></p>
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>

@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 <!DOCTYPE html>
 <html>
 <body>  
+    <div class="wrapper">
     <div class="container">
         <!-- <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()"> -->
         <form method="get" action="grocery.php" onsubmit="return validateInput()">
@@ -178,8 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
             <?php elseif ($result_type == "itemInStores"): ?>
                 <div id="itemStoreContainer"> </div>
             <?php endif; ?>
-    </div>   
-
+        </div>   
+    </div>
+    </div>
 
     <script>
         var list_of_results = <?php echo json_encode($list_of_results); ?>;
@@ -299,3 +301,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 </body>
 
 </html>
+
+<?php include 'footer.php'; ?>

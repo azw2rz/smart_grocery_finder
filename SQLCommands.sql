@@ -20,6 +20,15 @@ CREATE TABLE _User (
     FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE
 );
 
+CREATE TABLE AddressBook (
+    user INT,
+    address INT,
+    is_primary BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user) REFERENCES _User(user_ID) ON DELETE CASCADE,
+    FOREIGN KEY (address) REFERENCES Address(address_ID) ON DELETE CASCADE,
+    PRIMARY KEY (user, address)
+);
+
 DROP TABLE IF EXISTS Store;
 CREATE TABLE Store (
     store_ID INT AUTO_INCREMENT PRIMARY KEY,

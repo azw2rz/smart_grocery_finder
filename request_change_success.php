@@ -15,6 +15,7 @@ if (!$_SESSION["user_id"]) {
     <title>Request Submitted</title>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
@@ -24,5 +25,8 @@ if (!$_SESSION["user_id"]) {
             </div>
         </div>
     </div>
+    </div>
 </body>
 </html>
+
+<?php include 'footer.php'; ?>

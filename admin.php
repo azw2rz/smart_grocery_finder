@@ -116,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
     </style>
 </head>
 <body>  
+    <div class="wrapper">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
@@ -447,6 +448,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             </div>  
         </div> 
     </div> 
+    </div>
 </body>
 
 <script>
@@ -615,3 +617,5 @@ document.getElementById('toggleTableBtn2').addEventListener('click', function() 
 </script>
 
 </html>
+
+<?php include 'footer.php'; ?>

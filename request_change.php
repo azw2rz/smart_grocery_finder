@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php   // form handling
@@ -97,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
     </style>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
@@ -329,6 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             </div>
         </form>
     </div>
+    </div>
 </body>
 
 
@@ -437,3 +441,5 @@ function updateFormFields() {
 </script>
 
 </html>
+
+<?php include 'footer.php'; ?>

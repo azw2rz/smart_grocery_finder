@@ -214,7 +214,9 @@ function getAllItems() {
 function getUserInformation($user_id) {
     global $db;
 
-    $query = "SELECT * FROM _User WHERE user_ID = :user_ID";
+    $query = "SELECT * FROM _User 
+              JOIN Address ON _User.address = Address.address_ID
+              WHERE user_ID = :user_ID";
 
     $statement = $db->prepare($query);
 
@@ -230,7 +232,7 @@ function getUserInformation($user_id) {
 function updateUserInformation($user_ID, $first_name, $last_name, $age) {
     global $db;
 
-    $query = "  UPDATE _User
+    $query = "UPDATE _User
                 SET first_name = :first_name,
                     last_name = :last_name,
                     age = :age
@@ -242,12 +244,63 @@ function updateUserInformation($user_ID, $first_name, $last_name, $age) {
     $statement->bindValue(':last_name', $last_name, PDO::PARAM_STR);
     $statement->bindValue(':age', $age, PDO::PARAM_INT);
     $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
-
     $statement->execute();
-    // $result = $statement->fetch();
+
+    $statement->closeCursor();
+}
+
+function checkUserAddress($user_ID) {
+    // checks how many address user have in record
+    global $db;
+
+    $query = "SELECT * FROM AddressBook WHERE user = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->execute();
+    $result = $statement->fetchAll();
     $statement->closeCursor();
 
-    // return;
+    return count($result);
+}
+
+/**
+ * adds into Address & adds into AddressBook
+ * @return int new address_ID
+ */
+function addUserAddress($user_ID, $street_num, $street_name, $city, $state, $zipcode) {
+    global $db;
+
+    $addressQuery = "
+        INSERT INTO Address (street_num, street_name, city, state, zipcode)
+        VALUES (:street_num, :street_name, :city, :state, :zipcode)
+    ";
+    $addressStatement = $db->prepare($addressQuery);
+    $addressStatement->bindValue(':street_num', $street_num, PDO::PARAM_STR);
+    $addressStatement->bindValue(':street_name', $street_name, PDO::PARAM_STR);
+    $addressStatement->bindValue(':city', $city, PDO::PARAM_STR);
+    $addressStatement->bindValue(':state', $state, PDO::PARAM_STR);
+    $addressStatement->bindValue(':zipcode', $zipcode, PDO::PARAM_STR);
+    $addressStatement->execute();
+
+    // Get the address_ID of the newly inserted address
+    $address_ID = $db->lastInsertId();
+    $addressStatement->closeCursor();
+
+    // set new primary address 
+    $query = "
+        INSERT INTO AddressBook (user, address, is_primary)
+        VALUES (:user_ID, :address_ID, true)
+    ";
+    $statement = $db->prepare($query);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_STR);
+    $statement->bindValue(':address_ID', $address_ID, PDO::PARAM_STR);
+    $statement->execute();
+
+    $statement->closeCursor();
+
+    return $address_ID;
 }
 
 function getStores() {
@@ -557,6 +610,146 @@ function rejectChangeRequest($request_ID) {
     $statement = $db->prepare($query);
 
     $statement->bindValue(':request_ID', $request_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function addReview($user_ID, $item, $store, $image=null, $comment, $rating) {
+    global $db;
+
+    $query = "INSERT INTO Review (user, item, store, image, comment, rating, review_time) 
+                VALUES (:user, :item, :store, :image, :comment, :rating, :review_time)";
+    $statement = $db->prepare($query);
+
+    $dateTime = new DateTime();
+    $review_time = $dateTime->format('Y-m-d_H:i:s');
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+
+    list($item_ID, $item_name) = explode(':', $item, 2);
+    $item_ID = intval(trim($item_ID));
+
+    $statement->bindValue(':user', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
+    $statement->bindValue(':image', $image, PDO::PARAM_STR);
+    $statement->bindValue(':comment', $comment, PDO::PARAM_STR);
+    $statement->bindValue(':rating', $rating, PDO::PARAM_INT);
+    $statement->bindValue(':review_time', $review_time, PDO::PARAM_STR);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function getReviews($user_ID) {
+    global $db;
+
+    $query = "SELECT r.review_ID, r.item, r.store, r.comment, r.rating, r.review_time,
+              i.name AS item_name, i.brand, s.name AS store_name, r.image
+              FROM Review r
+              JOIN Item i ON r.item = i.item_ID
+              JOIN Store s ON r.store = s.store_ID
+              WHERE r.user = :user_id
+              ORDER BY r.review_time DESC";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_id', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $favorites = $statement->fetchAll();
+    $statement->closeCursor();
+    
+    return $favorites;
+}
+
+function deleteReview($review_ID) {
+    global $db;
+
+    $query = "DELETE FROM Review WHERE review_ID = :review_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':review_ID', $review_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function getUserAddresses($user_ID) {
+    global $db;
+
+    $query = "SELECT *
+              FROM AddressBook ab
+              JOIN Address a ON ab.address = a.address_ID
+              WHERE ab.user = :user_id";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_id', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $favorites = $statement->fetchAll();
+    $statement->closeCursor();
+    
+    return $favorites;
+}
+
+/**
+ * Reset is_primary in AddressBook, set new primary, update _User address
+ * @param int $user_ID target user_ID
+ * @param int $address_ID new address_ID to be made primary
+ */
+function makeAddressPrimary($user_ID, $address_ID) {
+    global $db;
+
+    $query = "UPDATE AddressBook
+            SET is_primary = false 
+            WHERE AddressBook.user = :user_ID AND is_primary = true";
+    
+    $statement = $db->prepare($query);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->execute();
+    $statement->closeCursor();
+
+    $query = "UPDATE AddressBook
+            SET is_primary = true 
+            WHERE AddressBook.user = :user_ID AND address = :address_ID";
+
+    $statement = $db->prepare($query);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':address_ID', $address_ID, PDO::PARAM_INT);
+    $statement->execute();
+    $statement->closeCursor();
+
+    $query = "UPDATE _User
+            SET address = :address_ID 
+            WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':address_ID', $address_ID, PDO::PARAM_INT);
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function deleteAddress($user_ID, $address_ID) {
+    global $db;
+
+    $query = "DELETE FROM AddressBook WHERE user = :user_ID AND address = :address_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':address_ID', $address_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+
+    $query = "DELETE FROM Address WHERE address_ID = :address_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':address_ID', $address_ID, PDO::PARAM_INT);
 
     $statement->execute();
     $statement->closeCursor();

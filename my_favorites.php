@@ -170,6 +170,7 @@ function toggleNotificationStatus($user_id, $item_id, $store_id, $current_status
     </style>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <h2>My Favorites</h2>
         <?php if (count($favorites) > 0): ?>
@@ -209,6 +210,7 @@ function toggleNotificationStatus($user_id, $item_id, $store_id, $current_status
             <p>You have no favorite items yet.</p>
         <?php endif; ?>
     </div>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -234,3 +236,5 @@ function toggleNotificationStatus($user_id, $item_id, $store_id, $current_status
     </script>
 </body>
 </html>
+
+<?php include 'footer.php'; ?>

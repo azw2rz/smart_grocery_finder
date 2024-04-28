@@ -37,6 +37,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login</title>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <h2 style="margin-bottom:20px;">Login</h2>
         <?php if(isset($error)) echo "<p>$error</p>"; ?>
@@ -51,6 +52,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a style="margin-left:20px;" href="signup.php">Signup</a>
             </div>
         </form>
+    </div>
     </div>  
 </body>
 </html>
+
+<?php include 'footer.php'; ?>

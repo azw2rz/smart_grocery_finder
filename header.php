@@ -61,14 +61,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['logout-btn'])) {
                         class="btn btn-primary" title="admin portal">Admin Page</a>
                     <?php endif; ?>
                     <?php if ($_SESSION): ?>
+                        <a href="grocery.php" id="groceryBtn" name="groceryBtn" 
+                        class="btn btn-secondary" title="main page">Groceries</a>
                         <a href="request_change.php" id="requestBtn" name="requestBtn" 
                         class="btn btn-primary" title="request change form">Request Changes</a>
+                        <a href="write_review.php" id="reviewBtn" name="reviewBtn" 
+                        class="btn btn-primary" title="write review form">Write A Review</a>
                         <div class="profile-dropdown">
-                            <button class="profile-btn" onclick="toggleProfileMenu(event)"></button>
+                            <button class="profile-btn" onclick="toggleProfileMenu(event)">User</button>
                             <div class="profile-menu" id="profileMenu">
-                                <a href="profile.php">Edit Profile</a>
-                                <a href="favorites.php">My Favorites</a>
-                                <a href="watchlist.php">My Watchlist</a>
+                                <a href="my_profile.php">Edit Profile</a>
+                                <a href="my_favorites.php">My Favorites</a>
+                                <a href="my_watchlist.php">My Watchlist</a>
+                                <a href="my_reviews.php">My Reviews</a>
                                 <form method="post" class="logout-form" action="<?php $_SERVER['PHP_SELF'] ?>" onsubmit="return validateInput()">
                                     <input type="submit" class="logout-btn" name="logout-btn" value="Logout">
                                 </form> 

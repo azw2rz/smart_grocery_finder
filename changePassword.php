@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 </head>
 
 <body>
+    <div class="wrapper">
     <div class="container">
         <h2>User Information</h2>
         <form method="post" action="changePassword.php">
@@ -65,5 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             <input type="submit" value="Change Password" id="changePasswordBtn" name="changePasswordBtn" class="btn btn-primary"/>
         </form>
     </div>
+    </div>
 </body>
 </html>
+
+<?php include 'footer.php'; ?>

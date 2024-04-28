@@ -22,16 +22,12 @@ body {
   height: 100%;
 }
 
-form {
-  margin: 0;
+.wrapper {
+  display: flex; flex-direction: column; min-height: 100vh;
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 6.5rem;            /* Footer height */
-  /* font-size: 90%; */
+form {
+  margin: 0;
 }
 
 #page-container {
@@ -54,11 +50,10 @@ footer {
     Header things
 */
 
-header {
+header{
   background-color: #333;
   color: white;
   padding: 20px;
-  /* display: flex; */
   /* justify-content: space-between; */
   /* align-items: center; */
 }
@@ -122,12 +117,29 @@ p {
   color: black;
 }
 
-#adminBtn, #requestBtn {
+#adminBtn, #groceryBtn, #requestBtn, #reviewBtn {
   margin-right: 20px;
 }
 
 
+/*
+  footer things
+*/
+
+footer {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  bottom: 0;
+  width: 100%;
+  height: 6.5rem;            /* Footer height */
+}
 
 /*
-    Change request form things
+  profile things
 */
+.address-container {
+  margin-top: 10px;
+}

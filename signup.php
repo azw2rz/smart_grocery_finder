@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php include 'header.php'; ?>
 
 <?php
@@ -61,6 +63,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <div class="wrapper">
     <div class="container">
         <h2 style="margin-bottom:20px;">Signup</h2>
         <?php if($isFormSubmitted && isset($error)) echo "<p>$error</p>"; ?>
@@ -81,5 +84,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </form>
     </div>  
+    </div>
 </body>
 </html>
+
+<?php include 'footer.php'; ?>
