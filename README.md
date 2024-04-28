@@ -13,3 +13,9 @@ to do things:
         // parse_str($_GET['query'], $_GET);
 
 
+how to view reviews?
+
+checks for store + item selection
+right now all items, but some stores might not have 
+
+decimals not working

@@ -15,6 +15,7 @@ if (!$_SESSION["user_id"]) {
     <title>Change Submitted (Admin)</title>
 </head>
 <body>
+    <div class="wrapper">
     <div class="container">
         <div class="row g-3 mt-2">
             <div class="col">
@@ -23,6 +24,7 @@ if (!$_SESSION["user_id"]) {
                 <p><a href="admin.php" class="btn btn-primary" style="margin-top:10px;">Go back to admin page</a></p>
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>
