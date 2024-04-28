@@ -43,7 +43,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                 $_POST['itemBrand'], $_POST['newPrice'], $_POST['newWeight'], 
                 $_POST['newUnit'], $_POST['notesText']
             );
-        }
+        } else if ($_POST['requestType'] == 'addSale') {
+            requestChangeAddSale(
+                $_SESSION["user_id"], 
+                $_POST['storeSearch3'], 
+                $_POST['saleItemName'], 
+                $_POST['salePrice'], 
+                $_POST['startDate'],
+                $_POST['endDate'], 
+                $_POST['notesText']
+            );
+        } 
 
         $isFormSubmitted = true;
         echo "<script>window.location.href = 'request_change_success.php';</script>";
@@ -123,15 +133,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                                 <option value='removeStore' <?php if ($request_type == 'removeStore') echo 'selected'; ?>>
                                     Remove a store location
                                 </option>
-                                <!-- <option value='addItem' <?php if ($request_type == 'addItem') echo 'selected'; ?>>
-                                    Add item (general)
-                                </option> -->
                                 <option value='addStoreItem' <?php if ($request_type == 'addStoreItem') echo 'selected'; ?>>
                                     Add item (specific store)
                                 </option>
                                 <option value='changePrice' <?php if ($request_type == 'changePrice') echo 'selected'; ?>>
                                     Change price of item (specific store)
                                 </option>
+                                <option value='addSale' <?php if ($request_type == 'addSale') echo 'selected'; ?>>
+                                    Report an Item on Sale
+                                </option>                                
                             </select>
                         </div>
                     </td>
@@ -296,11 +306,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
-                <!-- <tr>
-                <input type='text' class='form-control' id='requestedDate' name='requestedDate'
-                    placeholder='Format: yyyy-mm-dd' pattern="\d{4}-\d{1,2}-\d{1,2}"
-                    value="" />
-                </tr> -->
+                <tr id='addSale1' class='hidden'>
+                    <td width="33%">
+                        <div class='mb-3' width="100%">
+                            Select Store:
+                            <div class="search-container">
+                                <input width="100%" type="text" class="search-input form-input" name="storeSearch3" id="storeSearch3" placeholder="Search for a store" onkeyup="filterStores('storeSearch3', 'storeList3')">
+                                <div class="store-list" id="storeList3">
+                                    <?php
+                                    // Retrieve the list of stores from the database
+                                    $stores = getStores();
+                                    foreach ($stores as $store) {
+                                        echo "<div onclick=\"selectStore('storeSearch3', 'storeList3', '" . $store['store_ID'] . "', '" . $store['name'] . "')\">" . $store['store_ID'] . ": " . $store['name'] . "</div>";
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Item Name:
+                            <input type='text' class='form-control' id='saleItemName' name='saleItemName' value="" />
+                        </div>
+                    </td>
+                </tr>
+                <tr id='addSale2' class='hidden'>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale Price ($):
+                            <input type='text' class='form-control' id='salePrice' name='salePrice' value="" />
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale Start Date:
+                            <input type='date' class='form-control' id='startDate' name='startDate' value="" />
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale End Date:
+                            <input type='date' class='form-control' id='endDate' name='endDate' value="" />
+                        </div>
+                    </td>
+                </tr>
                 <tr id='notes' class='hidden'>
                     <td colspan=3>
                         <div class="mb-3">
@@ -317,15 +367,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                     <input type="submit" value="Submit" id="submitBtn" name="submitBtn" class="btn btn-dark"
                         title="Submit a change request" />
                 </div>
-                    <!-- <div class="col-4 d-grid ">
-                    <input type="submit" value="Confirm update" id="cofmBtn" name="cofmBtn" class="btn btn-primary"
-                        title="Update a maintenance request" />      
-                    <input type="hidden" value="<?= $_POST['reqId'] ?>" name="cofm_reqId" />      
-                        Why need to attach this cofm_reqId? 
-                        Because of HTTP stateless property, $_POST['reqId'] is available to this request only. 
-                        To carry over the reqId to the next round of form submision, need to pass a token to the next request. 
-
-                    </div>	     -->
                 <div class="col-4 d-grid">
                     <input type="reset" value="Clear form" name="clearBtn" id="clearBtn" class="btn btn-secondary" />
                 </div>
@@ -375,11 +416,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
         }
     });
 
+    document.addEventListener('click', function(event) {
+        var searchContainer = document.querySelector('.search-container');
+        if (!searchContainer.contains(event.target)) {
+            document.getElementById('storeList3').style.display = 'none';
+        }
+    });
+
 const validationConfig = {
     addStore: ['storeName', 'streetNumber', 'streetName', 'city', 'state', 'zipCode'],
-    removeStore: ['store', 'removeStoreReason'],
-    addStoreItem: ['store', 'itemName', 'itemBrand', 'price', 'weight', 'unit'],
-    changePrice: ['store', 'itemName', 'itemBrand', 'newPrice', 'newWeight', 'newUnit']
+    removeStore: ['storeSearch', 'removeStoreReason'],
+    addStoreItem: ['storeSearch2', 'itemName', 'itemBrand', 'price', 'weight', 'unit'],
+    changePrice: ['storeSearch2', 'itemName', 'itemBrand', 'newPrice', 'newWeight', 'newUnit'],
+    addSale: ['storeSearch3', 'saleItemName', 'salePrice', 'startDate', 'endDate']
 };
 
 function validateForm() {
@@ -401,7 +450,7 @@ function validateForm() {
 }
 
 function hideFormFields() {
-    var formRows = document.querySelectorAll('#addStore1, #addStore2, #removeStore, #storeItem, #addStoreItem, #changePrice, #notes');
+    var formRows = document.querySelectorAll('#addStore1, #addStore2, #removeStore, #storeItem, #addStoreItem, #changePrice, #addSale1, #addSale2, #notes');
     formRows.forEach(function(row) {
         row.classList.add('hidden');
     });
@@ -415,6 +464,8 @@ function updateFormFields() {
     var storeItemFields = document.getElementById('storeItem');
     var addStoreItemFields = document.getElementById('addStoreItem');
     var changePriceFields = document.getElementById('changePrice');
+    var addSaleFields1 = document.getElementById('addSale1');
+    var addSaleFields2 = document.getElementById('addSale2');
     var notesField = document.getElementById('notes');
 
     // Hide all fields
@@ -435,6 +486,10 @@ function updateFormFields() {
     } else if (requestType === 'changePrice') {
         storeItemFields.classList.remove('hidden');
         changePriceFields.classList.remove('hidden');
+        notesField.classList.remove('hidden');
+    } else if (requestType === 'addSale') {
+        addSaleFields1.classList.remove('hidden');
+        addSaleFields2.classList.remove('hidden');
         notesField.classList.remove('hidden');
     }
 }

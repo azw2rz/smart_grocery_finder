@@ -441,6 +441,59 @@ function requestChangeChangePrice($user_ID, $store, $item_name,
     // echo "Added \"change price\" change request.";
 }                                    
 
+function requestChangeAddSale($user_ID, $store, $item_name, $sale_price, $start_date, $end_date, $notesText) {
+    global $db; 
+    
+    // 1. Extract store ID from the combined string
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    
+    // 2. Get item ID based on name (assuming unique item names)
+    $item_ID = getItemIDByName($item_name);
+    
+    // 3. Insert sale details into the Sale table
+    $sql = "INSERT INTO Sale (item, store, start_date, end_date, sale_price)
+            VALUES (:item_ID, :store_ID, :start_date, :end_date, :sale_price)";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':item_ID', $item_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+    $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+    $stmt->bindValue(':sale_price', $sale_price, PDO::PARAM_STR);
+    $stmt->execute();
+    $stmt->closeCursor();
+
+    // 4. Log the request in the ChangeRequest table
+    $change_details = "Reported sale for item '$item_name' at store ID $store_ID: $$sale_price from $start_date to $end_date. Notes: $notesText";
+    $sql = "INSERT INTO ChangeRequest (user, item, store, request_time, change_details, accepted)
+            VALUES (:user_ID, :item_ID, :store_ID, :request_time, :change_details, 0)"; // 0 indicates not yet accepted
+    
+    $dateTime = new DateTime();
+    $request_time = $dateTime->format('Y-m-d_H:i:s');
+
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':item_ID', $item_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':request_time', $request_time, PDO::PARAM_STR);
+    $stmt->bindValue(':change_details', $change_details, PDO::PARAM_STR);
+    $stmt->execute();
+    $stmt->closeCursor();
+}
+
+function getItemIDByName($item_name) {
+    global $db; 
+    $sql = "SELECT item_ID FROM Item WHERE name = :item_name";
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':item_name', $item_name, PDO::PARAM_STR);
+    $stmt->execute();
+    $result = $stmt->fetch();
+    $stmt->closeCursor();
+    return $result['item_ID'];
+}
+
 function getChangeRequests()
 {
     global $db;
@@ -544,10 +597,10 @@ function adminAddStoreItem($store, $item, $price, $weight, $unit)
 
     $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
     $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
-    $statement->bindValue(':price', $price, PDO::PARAM_INT);
-    $statement->bindValue(':weight', $weight, PDO::PARAM_INT);
+    $statement->bindValue(':price', $price, PDO::PARAM_STR);
+    $statement->bindValue(':weight', $weight, PDO::PARAM_STR);
     $statement->bindValue(':unit', $unit, PDO::PARAM_STR);
-    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_INT);
+    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_STR);
 
     $statement->execute();
     $statement->closeCursor();
@@ -576,15 +629,40 @@ function adminChangePrice($store, $item, $price, $weight, $unit)
 
     $statement->bindValue(':store', $store_ID, PDO::PARAM_INT);
     $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
-    $statement->bindValue(':price', $price, PDO::PARAM_INT);
-    $statement->bindValue(':weight', $weight, PDO::PARAM_INT);
+    $statement->bindValue(':price', $price, PDO::PARAM_STR);
+    $statement->bindValue(':weight', $weight, PDO::PARAM_STR);
     $statement->bindValue(':unit', $unit, PDO::PARAM_STR);
-    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_INT);
+    $statement->bindValue(':price_per_unit', $price_per_unit, PDO::PARAM_STR);
 
     $statement->execute();
     $statement->closeCursor();
     
     echo "Change price of item \"$item_name\" from store \"$store_name\".";
+}
+
+function adminAddSale($store, $item_ID, $sale_price, $start_date, $end_date) {
+    global $db; 
+    
+    // 1. Extract store ID from the combined string
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+    $store_name = trim($store_name);
+    
+    // 2. Get item ID based on name (assuming unique item names)
+    // $item_ID = getItemIDByName($item_name);
+    
+    // 3. Insert sale details into the Sale table
+    $sql = "INSERT INTO Sale (item, store, start_date, end_date, sale_price)
+            VALUES (:item_ID, :store_ID, :start_date, :end_date, :sale_price)";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':item_ID', $item_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+    $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+    $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+    $stmt->bindValue(':sale_price', $sale_price, PDO::PARAM_STR);
+    $stmt->execute();
+    $stmt->closeCursor();
 }
 
 function acceptChangeRequest($request_ID) {

@@ -20,34 +20,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
 {
     if (!empty($_POST['submitBtn']))    // $_GET['....']
     {
-        if ($_POST['updateType'] == 'addStore') {
-            adminAddStore(
-                $_POST['storeName'], $_POST['streetNumber'], 
-                $_POST['streetName'], $_POST['city'], 
-                $_POST['state'], $_POST['zipCode']
-            );
-        } else if ($_POST['updateType'] == 'removeStore') {
-            adminRemoveStore($_POST['storeSearch']);
-        } else if ($_POST['updateType'] == 'addItem') {
-            adminAddItem(
-                $_POST['newItemName'], $_POST['newItemBrand'], 
-                $_POST['newItemCategory'], $_POST['newItemDescription']
-            );
-        } else if ($_POST['updateType'] == 'addStoreItem') {
-            adminAddStoreItem(
-                $_POST['storeSearch2'], $_POST['itemSearch'],
-                $_POST['price'], $_POST['weight'], 
-                $_POST['unit']
-            );
-        } else if ($_POST['updateType'] == 'changePrice') {
-            adminChangePrice(
-                $_POST['storeSearch2'], $_POST['itemSearch'], 
-                $_POST['newPrice'], $_POST['newWeight'], 
-                $_POST['newUnit']
-            );
+        try {
+            if ($_POST['updateType'] == 'addStore') {
+                adminAddStore(
+                    $_POST['storeName'], $_POST['streetNumber'], 
+                    $_POST['streetName'], $_POST['city'], 
+                    $_POST['state'], $_POST['zipCode']
+                );
+            } else if ($_POST['updateType'] == 'removeStore') {
+                adminRemoveStore($_POST['storeSearch']);
+            } else if ($_POST['updateType'] == 'addItem') {
+                adminAddItem(
+                    $_POST['newItemName'], $_POST['newItemBrand'], 
+                    $_POST['newItemCategory'], $_POST['newItemDescription']
+                );
+            } else if ($_POST['updateType'] == 'addStoreItem') {
+                adminAddStoreItem(
+                    $_POST['storeSearch2'], $_POST['itemSearch'],
+                    $_POST['price'], $_POST['weight'], 
+                    $_POST['unit']
+                );
+            } else if ($_POST['updateType'] == 'changePrice') {
+                adminChangePrice(
+                    $_POST['storeSearch2'], $_POST['itemSearch'], 
+                    $_POST['newPrice'], $_POST['newWeight'], 
+                    $_POST['newUnit']
+                );
+            } else if ($_POST['updateType'] == 'addSale') {
+                adminAddSale(
+                    $_POST['storeSearch3'], 
+                    $_POST['saleItemID'], 
+                    $_POST['salePrice'], 
+                    $_POST['startDate'],
+                    $_POST['endDate']
+                );
+            }
+            echo "<script>window.location.href = 'admin_change_success.php';</script>";
         }
-
-        echo "<script>window.location.href = 'admin_change_success.php';</script>";
+        catch (PDOException $e) {
+            echo(''. $e->getMessage());
+        }
     }
     else if (!empty($_POST['updateBtn'])) {
         $isChecked = isset($_POST["my_checkbox"]) ? true : false;
@@ -148,6 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                                 </option>
                                 <option value='changePrice' <?php if ($update_type == 'changePrice') echo 'selected'; ?>>
                                     Change price of item (specific store)
+                                </option>
+                                <option value='addSale' <?php if ($update_type == 'addSale') echo 'selected'; ?>>
+                                    Add item on sale
                                 </option>
                             </select>
                         </div>
@@ -334,6 +349,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
                         </div>
                     </td>
                 </tr>
+                <tr id='addSale1' class='hidden'>
+                    <td width="33%">
+                        <div class='mb-3' width="100%">
+                            Select Store:
+                            <div class="search-container">
+                                <input width="100%" type="text" class="search-input form-input" name="storeSearch3" id="storeSearch3" placeholder="Search for a store" onkeyup="filterStores('storeSearch3', 'storeList3')">
+                                <div class="store-list" id="storeList3">
+                                    <?php
+                                    // Retrieve the list of stores from the database
+                                    $stores = getStores();
+                                    foreach ($stores as $store) {
+                                        echo "<div onclick=\"selectStore('storeSearch3', 'storeList3', '" . $store['store_ID'] . "', '" . $store['name'] . "')\">" . $store['store_ID'] . ": " . $store['name'] . "</div>";
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Item ID:
+                            <input type='text' class='form-control' id='saleItemID' name='saleItemID' value="" />
+                        </div>
+                    </td>
+                </tr>
+                <tr id='addSale2' class='hidden'>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale Price ($):
+                            <input type='text' class='form-control' id='salePrice' name='salePrice' value="" />
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale Start Date:
+                            <input type='date' class='form-control' id='startDate' name='startDate' value="" />
+                        </div>
+                    </td>
+                    <td width="33%">
+                        <div class='mb-3'>
+                            Sale End Date:
+                            <input type='date' class='form-control' id='endDate' name='endDate' value="" />
+                        </div>
+                    </td>
+                </tr>
             </table>
 
             <div class="row g-3 mx-auto">
@@ -448,6 +508,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')   // GET
             </div>  
         </div> 
     </div> 
+
     </div>
 </body>
 
@@ -517,16 +578,24 @@ document.addEventListener('click', function(event) {
 document.addEventListener('click', function(event) {
     var searchContainer = document.querySelector('.search-container');
     if (!searchContainer.contains(event.target)) {
+        document.getElementById('storeList3').style.display = 'none';
+    }
+});
+
+document.addEventListener('click', function(event) {
+    var searchContainer = document.querySelector('.search-container');
+    if (!searchContainer.contains(event.target)) {
         document.getElementById('itemList').style.display = 'none';
     }
 });
 
 const validationConfig = {
     addStore: ['storeName', 'streetNumber', 'streetName', 'city', 'state', 'zipCode'],
-    removeStore: ['store', 'removeStoreReason'],
-    addItem: [],
-    addStoreItem: ['store', 'item', 'price', 'weight', 'unit'],
-    changePrice: ['store', 'item', 'newPrice', 'newWeight', 'newUnit']
+    removeStore: ['storeSearch', 'removeStoreReason'],
+    addItem: ['newItemName', 'newItemBrand', 'newItemCategory', 'newItemDescription'],
+    addStoreItem: ['storeSearch2', 'item', 'price', 'weight', 'unit'],
+    changePrice: ['storeSearch2', 'item', 'newPrice', 'newWeight', 'newUnit'],
+    addSale: ['storeSearch3', 'saleItemID', 'salePrice', 'startDate', 'endDate']
 };
 
 function validateForm() {
@@ -549,7 +618,7 @@ function validateForm() {
 
 function hideFormFields() {
     var formRows = document.querySelectorAll(
-        '#addStore1, #addStore2, #addItem1, #addItem2, #removeStore, #storeItem, #addStoreItem, #changePrice, #notes'
+        '#addStore1, #addStore2, #addItem1, #addItem2, #removeStore, #storeItem, #addStoreItem, #changePrice, #addSale1, #addSale2, #notes'
     );
     formRows.forEach(function(row) {
         row.classList.add('hidden');
@@ -566,6 +635,8 @@ function updateFormFields() {
     var storeItemFields = document.getElementById('storeItem');
     var addStoreItemFields = document.getElementById('addStoreItem');
     var changePriceFields = document.getElementById('changePrice');
+    var addSaleFields1 = document.getElementById('addSale1');
+    var addSaleFields2 = document.getElementById('addSale2');
 
     // Hide all fields
     hideFormFields();
@@ -585,6 +656,9 @@ function updateFormFields() {
     } else if (updateType === 'changePrice') {
         storeItemFields.classList.remove('hidden');
         changePriceFields.classList.remove('hidden');
+    } else if (updateType === 'addSale') {
+        addSaleFields1.classList.remove('hidden');
+        addSaleFields2.classList.remove('hidden');
     }
 }
 
