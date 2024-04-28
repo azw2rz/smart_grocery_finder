@@ -37,20 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') { 
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
     // Process the data (this is where you would add your logic)
-    if (isset($data['itemID']) && isset($data['storeID']) && isset($data['functionID'])) {
-        if($data['functionID']=="1"){
-            requestChangeAddFavorites($_SESSION['user_id'],$data['itemID'],$data['storeID']);
-        }else {
-            http_response_code(400); 
-        }
-        http_response_code(200); 
-    } else {
-        // Missing data
+    if (isset($data['itemID']) && isset($data['storeID'])) {
+        requestChangeAddFavorites($_SESSION['user_id'],$data['itemID'],$data['storeID']);
+    } else if(isset($data['itemID'])){
+        requestChangeAddHistory($_SESSION['user_id'],$data['itemID']);
+    }
+    else {
         http_response_code(400); 
     }
 }
@@ -129,34 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tr>
                 </table>
             <?php elseif ($result_type == "item"): ?>
-                <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
-                <thead>
-                    <tr style="background-color:#B0B0B0">
-                        <th width="10%"><b>ItemID</b></th>
-                        <th width="20%"><b>Name</b></th> 
-                        <th width="30%"><b>Description</b></th>        
-                        <th width="10%"><b>Brand</b></th>
-                        <th width="20%"><b>Item Category</b></th>        
-                        <th width="10%"><b>Stores</b></th>
-                    </tr>
-                </thead>
-                <?php foreach ($list_of_results as $item_info): ?>
-                    <tr>
-                        <td><?php echo $item_info['item_ID']; ?></td>
-                        <td><?php echo $item_info['name']; ?></td>
-                        <td><?php echo $item_info['description']; ?></td>
-                        <td><?php echo $item_info['brand']; ?></td>
-                        <td><?php echo $item_info['item_category']; ?></td>
-                        <td>
-                            <form method="get" action="<?php $_SERVER['PHP_SELF'] ?>">
-                                <input type="hidden" name="searchType" value="itemInStores">
-                                <input type="hidden" name="searchInput" value="<?php echo $item_info['item_ID']; ?>">
-                                <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"/>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </table>
+                <div id="itemContainer"> </div>
             <?php elseif ($result_type == "store"): ?>
                 <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
@@ -232,23 +202,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ itemID: itemID, storeID: storeID, functionID: "1"}) // Convert the data to JSON string
+                body: JSON.stringify({ itemID: itemID, storeID: storeID}) // Convert the data to JSON string
             }).then(response => {
                 console.log(response);
             })
         }
 
-        function addToHistory(itemID, storeID){
-            alert(`Added to history for item: ${itemID} from store: ${storeID}`);
+        function addToHistory(itemID){
+            alert(`I bought item: ${itemID}`);
             fetch('grocery.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ itemID: itemID, storeID: storeID, functionID: "2"}) // Convert the data to JSON string
+                body: JSON.stringify({ itemID: itemID}) // Convert the data to JSON string
             }).then(response => {
                 console.log(response);
             })
+        }
+
+        function generateItemTable(){
+            let html = `<table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                <thead>
+                    <tr style="background-color:#B0B0B0">
+                        <th width="5%"><b>ItemID</b></th>
+                        <th width="15%"><b>Name</b></th> 
+                        <th width="30%"><b>Description</b></th>        
+                        <th width="10%"><b>Brand</b></th>
+                        <th width="20%"><b>Item Category</b></th>        
+                        <th width="10%"><b>Stores</b></th>
+                        <th width="10%"></th>
+                    </tr>
+                </thead>`;
+
+            list_of_results.forEach(item_info => {
+            html += `<tr>
+            <td>${item_info.item_ID}</td>
+            <td>${item_info.name}</td>
+            <td>${item_info.description}</td>
+            <td>${item_info.brand}</td>
+            <td>${item_info.item_category}</td>
+            <td>
+                <form method="get" action="">
+                    <input type="hidden" name="searchType" value="itemInStores">
+                    <input type="hidden" name="searchInput" value="${item_info.item_ID}">
+                    <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"/>
+                </form>
+            </td>
+            <td><button class="btn btn-primary" onclick="addToHistory(${item_info.item_ID})">Bought</button></td>
+            </tr>`;
+            });
+
+            html += `
+            </table>`;
+
+            document.getElementById('itemContainer').innerHTML = html;
         }
 
         function generateItemStoreTable(){
@@ -261,12 +269,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <th width="15%"><b>Brand</b></th>
                 <th width="5%"><b>StoreID</b></th>
                 <th width="15%"><b>Store Name</b></th>
-                <th width="8%"><b>ZIP Code</b></th>
-                <th width="10%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                <th width="5%"><b>ZIP Code</b></th>
+                <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
                 <th width="5%"><b>Weight</b></th>
                 <th width="5%"><b>Unit</b></th>
-                <th width="20%"><b>Price per Unit</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
-                </tr>
+                <th width="15%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                <th width=7%"></th> 
                 </thead>`;
 
             list_of_results.forEach(item_info => {
@@ -282,6 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>${item_info.weight}</td>
                     <td>${item_info.unit}</td>
                     <td>${item_info.price_per_unit}</td>
+                    <td><button class="btn btn-primary" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
                 </tr>`;
             });
 
@@ -302,12 +311,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <th width="5%"><b>ItemID</b></th>
                         <th width="15%"><b>Item Name</b></th> 
                         <th width="15%"><b>Brand</b></th> 
-                        <th width="5%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                        <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
                         <th width="5%"><b>Weight</b></th> 
                         <th width="5%"><b>Unit</b></th> 
-                        <th width="12%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
-                        <th width="5%"></th> 
-                        <th width="5%"></th> 
+                        <th width="15%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
+                        <th width=7%"></th> 
                     </tr>
                 </thead>`;
 
@@ -325,7 +333,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>${item_info.unit}</td>
                     <td>${item_info.price_per_unit}</td>
                     <td><button class="btn btn-primary" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
-                    <td><button class="btn btn-primary" onclick="addToHistory(${item_info.item_ID},${item_info.store_ID})">Bought</button></td>
                 </tr>`;
             });
 
@@ -334,6 +341,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('storeItemContainer').innerHTML = html;
         }
         console.log(list_of_results[0]);
+        try{
+            generateItemTable();
+        }catch(error){
+            console.log(error);
+        }
         try{
             generateStoreItemTable();
         }catch(error){

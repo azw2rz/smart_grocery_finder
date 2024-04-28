@@ -781,4 +781,41 @@ function requestChangeAddFavorites($user_ID,  $item_ID, $store_ID)
     $statement->closeCursor();
 }
 
+function requestChangeAddHistory($user_ID, $item_ID)
+{
+    echo "request history";
+    global $db;
+
+    // Get the current quantity for the specified user and item
+    $getQuantityQuery = "SELECT quantity FROM PurchaseHistory WHERE user = :user AND item = :item ORDER BY purchase_ID DESC LIMIT 1";
+    $quantityStmt = $db->prepare($getQuantityQuery);
+    $quantityStmt->bindValue(':user', $user_ID, PDO::PARAM_INT);
+    $quantityStmt->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $quantityStmt->execute();
+    $result = $quantityStmt->fetch(PDO::FETCH_ASSOC);
+    $quantityStmt->closeCursor();
+    
+    // If the item exists, increment the quantity. If not, start with quantity 1.
+    $newQuantity = $result ? $result['quantity'] + 1 : 1;
+
+    $query = "INSERT INTO PurchaseHistory (user, item, quantity) 
+                VALUES (:user, :item, :quantity)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':item', $item_ID, PDO::PARAM_INT);
+    $statement->bindValue(':quantity', $newQuantity, PDO::PARAM_INT);
+
+    try {
+        $statement->execute();
+        echo "Added 'add to favorite' request.";
+    } catch (PDOException $e) {
+        echo "Error adding favorite: " . $e->getMessage();
+    }
+
+    $statement->closeCursor();
+}
+
+
+
 ?>
