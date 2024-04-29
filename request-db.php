@@ -897,8 +897,7 @@ function getHistory($user_ID) {
               FROM PurchaseHistory p
               JOIN Item i ON p.item = i.item_ID
               WHERE p.user = :user_id
-              GROUP BY p.item, i.brand, i.name, i.item_category
-              ORDER BY p.purchase_ID DESC";
+              GROUP BY p.item, i.brand, i.name, i.item_category";
 
     $statement = $db->prepare($query);
 
