@@ -38,8 +38,9 @@ $list_of_results = getHistory($_SESSION["user_id"]);
                         <td colspan="5" style="text-align: center;">No results found</td>
                     </tr>
                   </table>
-                <?php endif; ?>
+                  <?php else: ?>
                 <div id="historyContainer"></div>
+                <?php endif; ?>
         </div>   
         </div>
     </div>   
