@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="submit" value="Search" id="searchBtn" name="searchBtn" class="btn btn-primary"/>
                 </form>
             </td>
-            <td><button class="btn btn-primary" onclick="addToHistory(${item_info.item_ID})">Bought</button></td>
+            <td><button class="btn btn-primary" style="font-size: 13px;" onclick="addToHistory(${item_info.item_ID})">Bought</button></td>
             </tr>`;
             });
 
@@ -266,15 +266,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tr style="background-color:#B0B0B0">
                 <th width="5%"><b>ItemID</b></th>
                 <th width="15%"><b>Item Name</b></th>
-                <th width="15%"><b>Brand</b></th>
-                <th width="5%"><b>StoreID</b></th>
+                <th width="13%"><b>Brand</b></th>
+                <th width="2%"><b>StoreID</b></th>
                 <th width="15%"><b>Store Name</b></th>
-                <th width="5%"><b>ZIP Code</b></th>
-                <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                <th width="5%"><b>ZIP</b></th>
+                <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','1')" style="padding: 2px 2px; font-size: 10px; margin-left: 5px;">Sort</button></th>
                 <th width="5%"><b>Weight</b></th>
-                <th width="5%"><b>Unit</b></th>
-                <th width="15%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','1')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
-                <th width=7%"></th> 
+                <th width="3%"><b>Unit</b></th>
+                <th width="10%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','1')" style="padding: 2px 2px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                <th width="3%">Rating</th>
+                <th width="7%"></th> 
                 </thead>`;
 
             list_of_results.forEach(item_info => {
@@ -287,10 +288,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>${item_info.store_name}</td>
                     <td>${item_info.zipcode}</td>
                     <td>${item_info.price}</td>
-                    <td>${item_info.weight}</td>
+                    <td>${parseFloat(item_info.weight).toFixed(2)}</td>
                     <td>${item_info.unit}</td>
                     <td>${item_info.price_per_unit}</td>
-                    <td><button class="btn btn-primary" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
+                    <td>${parseFloat(item_info.average_rating).toFixed(1)}</td>
+                    <td><button class="btn btn-primary" style="font-size: 13px;" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
                 </tr>`;
             });
 
@@ -305,16 +307,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
                     <tr style="background-color:#B0B0B0">
-                        <th width="5%"><b>StoreID</b></th>
+                        <th width="2%"><b>StoreID</b></th>
                         <th width="15%"><b>Store Name</b></th> 
-                        <th width="5%"><b>ZIP Code</b></th>        
+                        <th width="5%"><b>ZIP</b></th>        
                         <th width="5%"><b>ItemID</b></th>
                         <th width="15%"><b>Item Name</b></th> 
-                        <th width="15%"><b>Brand</b></th> 
-                        <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button></th>
+                        <th width="13%"><b>Brand</b></th> 
+                        <th width="8%"><b>Price</b> <button class="btn btn-primary" onclick="sortItemsBy('price','2')" style="padding: 2px 2px; font-size: 10px; margin-left: 5px;">Sort</button></th>
                         <th width="5%"><b>Weight</b></th> 
-                        <th width="5%"><b>Unit</b></th> 
-                        <th width="15%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 5px; font-size: 10px; margin-left: 5px;">Sort</button>
+                        <th width="3%"><b>Unit</b></th> 
+                        <th width="10%"><b>Unit Price</b><button class="btn btn-primary" onclick="sortItemsBy('price_per_unit','2')" style="padding: 2px 2px; font-size: 10px; margin-left: 5px;">Sort</button>
+                        <th width="3%">Rating</th>
                         <th width=7%"></th> 
                     </tr>
                 </thead>`;
@@ -329,10 +332,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>${item_info.item_name}</td>
                     <td>${item_info.item_brand}</td>
                     <td>${item_info.price}</td>
-                    <td>${item_info.weight}</td>
+                    <td>${parseFloat(item_info.weight).toFixed(2)}</td>
                     <td>${item_info.unit}</td>
                     <td>${item_info.price_per_unit}</td>
-                    <td><button class="btn btn-primary" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
+                    <td>${parseFloat(item_info.average_rating).toFixed(1)}</td>
+                    <td><button class="btn btn-primary" style="font-size: 13px;" onclick="addToFavorites(${item_info.item_ID},${item_info.store_ID})">Like</button></td>
                 </tr>`;
             });
 

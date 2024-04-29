@@ -143,14 +143,19 @@ function searchReqeust($searchType, $searchInput) {
                     si.price,
                     si.weight,
                     si.unit,
-                    si.price_per_unit
+                    si.price_per_unit,
+                    AVG(r.rating) AS average_rating
                 FROM
                     Store s
                     JOIN Address a ON s.address = a.address_ID
                     JOIN StoreItems si ON s.store_ID = si.store
                     JOIN Item i ON si.item = i.item_ID
+                    JOIN Review r ON si.item = r.item AND si.store = r.store
                 WHERE
-                    s.store_ID = :searchInput;";  
+                    s.store_ID = :searchInput
+                GROUP BY
+                    i.item_ID, s.store_ID;"
+                ;  
     } elseif ($searchType == "itemInStores") {
         $query = 
                "SELECT
@@ -163,14 +168,18 @@ function searchReqeust($searchType, $searchInput) {
                     si.price,
                     si.weight,
                     si.unit,
-                    si.price_per_unit
+                    si.price_per_unit,
+                    AVG(r.rating) AS average_rating
                 FROM
                     Store s
                     JOIN Address a ON s.address = a.address_ID
                     JOIN StoreItems si ON s.store_ID = si.store
                     JOIN Item i ON si.item = i.item_ID
+                    JOIN Review r ON si.item = r.item AND si.store = r.store
                 WHERE
-                    i.item_ID = :searchInput";
+                    i.item_ID = :searchInput
+                GROUP BY
+                    i.item_ID, s.store_ID;";
     } else {
         // handle invalid $searchType value
         echo "Invalid search type...";
