@@ -344,9 +344,10 @@ function getItems() {
     return $result;
 }
 
-function requestChangeAddStore($user_ID, $store_name, $street_number, $street_name,
-                                $city, $state, $zip_code, $notes)
-{
+function requestChangeAddStore(
+    $user_ID, $store_name, $street_number, $street_name,
+    $city, $state, $zip_code, $notes
+) {
     global $db;
 
     $change_details = "(add store) Name: \"$store_name\", \"$street_number $street_name, $city $state $zip_code\" (notes) \"$notes\"";
@@ -367,8 +368,7 @@ function requestChangeAddStore($user_ID, $store_name, $street_number, $street_na
     // echo "Added \"add store\" change request.";
 }
 
-function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
-{
+function requestChangeRemoveStore($user_ID, $store, $reason, $notes) {
     global $db;
 
     list($store_ID, $store_name) = explode(':', $store, 2);
@@ -394,9 +394,10 @@ function requestChangeRemoveStore($user_ID, $store, $reason, $notes)
     // echo "Added \"remove store\" change request.";
 }
 
-function requestChangeAddStoreItem($user_ID, $store, $item_name,
-                                    $item_brand, $price, $weight, $unit, $notes)
-{
+function requestChangeAddStoreItem(
+    $user_ID, $store, $item_name, $item_brand, 
+    $price, $weight, $unit, $notes
+) {
     global $db;
 
     list($store_ID, $store_name) = explode(':', $store, 2);
@@ -422,9 +423,10 @@ function requestChangeAddStoreItem($user_ID, $store, $item_name,
     // echo "Added \"add store item\" change request.";
 }     
 
-function requestChangeChangePrice($user_ID, $store, $item_name,
-                                    $item_brand, $price, $weight, $unit, $notes)
-{
+function requestChangeChangePrice(
+    $user_ID, $store, $item_name, $item_brand, 
+    $price, $weight, $unit, $notes
+) {
     global $db;
 
     list($store_ID, $store_name) = explode(':', $store, 2);
@@ -450,7 +452,10 @@ function requestChangeChangePrice($user_ID, $store, $item_name,
     // echo "Added \"change price\" change request.";
 }                                    
 
-function requestChangeAddSale($user_ID, $store, $item_name, $sale_price, $start_date, $end_date, $notesText) {
+function requestChangeAddSale(
+    $user_ID, $store, $item_name, $sale_price, 
+    $start_date, $end_date, $notesText
+) {
     global $db; 
     
     // 1. Extract store ID from the combined string
@@ -503,8 +508,7 @@ function getItemIDByName($item_name) {
     return $result['item_ID'];
 }
 
-function getChangeRequests()
-{
+function getChangeRequests() {
     global $db;
 
     $query = "SELECT * FROM ChangeRequest WHERE accepted=false ORDER BY request_time ASC";
@@ -524,9 +528,9 @@ function getChangeRequests()
     return $result;
 }
 
-function adminAddStore($store_name, $street_num, $street_name,
-                        $city, $state, $zip_code)
-{
+function adminAddStore(
+    $store_name, $street_num, $street_name, $city, $state, $zip_code
+) {
     global $db;
 
     $query = "CALL addStore(:store_name, :street_num, :street_name, :city, :state, :zipcode);";
@@ -545,8 +549,7 @@ function adminAddStore($store_name, $street_num, $street_name,
     echo "Added store \"$store_name\".";
 }
 
-function adminRemoveStore($store)
-{
+function adminRemoveStore($store) {
     global $db;
 
     list($store_ID, $store_name) = explode(':', $store, 2);
@@ -584,8 +587,7 @@ function adminAddItem($item_name, $item_brand, $item_category,
     // echo "Added item \"$item_name\".";
 }
 
-function adminAddStoreItem($store, $item, $price, $weight, $unit)
-{
+function adminAddStoreItem($store, $item, $price, $weight, $unit) {
     // does not check if item already exists in the store
 
     global $db;
@@ -617,8 +619,7 @@ function adminAddStoreItem($store, $item, $price, $weight, $unit)
     echo "Added item \"$item_name\" to store \"$store_name\".";
 }
 
-function adminChangePrice($store, $item, $price, $weight, $unit)
-{
+function adminChangePrice($store, $item, $price, $weight, $unit) {
     global $db;
 
     $price = intval($price);
@@ -868,8 +869,7 @@ function requestChangeAddFavorites($user_ID,  $item_ID, $store_ID)
     $statement->closeCursor();
 }
 
-function requestChangeAddHistory($user_ID, $item_ID)
-{
+function requestChangeAddHistory($user_ID, $item_ID) {
     echo "request history";
     global $db;
 
@@ -911,4 +911,54 @@ function getHistory($user_ID) {
     return $favorites;
 }
 
+function getMemberships($user_ID) {
+    global $db;
+
+    $query = "SELECT m.is_VIP, m.store, s.name, a.street_num, 
+              a.street_name, a.city, a.state, a.zipcode
+              FROM Membership m
+              JOIN Store s ON m.store = s.store_ID
+              JOIN Address a ON s.address = a.address_ID
+              WHERE m.user = :user_id";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_id', $user_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $favorites = $statement->fetchAll();
+    $statement->closeCursor();
+    
+    return $favorites;
+}
+
+function deleteMembership($user_ID, $store_ID) {
+    global $db;
+
+    $query = "DELETE FROM Membership WHERE user = :user_ID AND store = :store_ID";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
+
+function addMembership($user_ID, $store) {
+    global $db;
+
+    list($store_ID, $store_name) = explode(':', $store, 2);
+    $store_ID = intval(trim($store_ID));
+
+    $query = "INSERT INTO Membership (user, store, is_VIP) 
+            VALUES (:user_ID, :store_ID, true)";
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_ID, PDO::PARAM_INT);
+    $statement->bindValue(':store_ID', $store_ID, PDO::PARAM_INT);
+
+    $statement->execute();
+    $statement->closeCursor();
+}
 ?>
