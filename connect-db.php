@@ -4,11 +4,11 @@
 /** S24, PHP (on Google Standard App Engine) connect to MySQL instance (GCP) **/
 
 
-$username = 'root';                       // or your username
-$password = 'QWer1234!';     
-$host = 'smart-grocery-finder:us-east4:smart-grocery-finder';       // e.g., 'cs4750:us-east4:db-demo'; 
-$dbname = 'smart-grocery-finder';           // e.g., 'guestbook';
-$dsn = "mysql:unix_socket=/cloudsql/$host;dbname=$dbname";
+// $username = 'root';                       // or your username
+// $password = 'QWer1234!';     
+// $host = 'smart-grocery-finder:us-east4:smart-grocery-finder';       // e.g., 'cs4750:us-east4:db-demo'; 
+// $dbname = 'smart-grocery-finder';           // e.g., 'guestbook';
+// $dsn = "mysql:unix_socket=/cloudsql/$host;dbname=$dbname";
 
 
 //       e.g., "mysql:unix_socket=/cloudsql/cs4750:us-east4:db-demo;dbname=guestbook";
@@ -37,11 +37,11 @@ $dsn = "mysql:unix_socket=/cloudsql/$host;dbname=$dbname";
 
 
 /** S24, PHP (on GCP, local XAMPP, or CS server) connect to MySQL (on local XAMPP) **/
-// $username = 'pma';
-// $password = '';
-// $host = 'localhost:3306';
-// $dbname = 'azw2rz';    
-// $dsn = "mysql:host=$host;dbname=$dbname";  
+$username = 'pma';
+$password = '';
+$host = 'localhost:3306';
+$dbname = 'azw2rz';    
+$dsn = "mysql:host=$host;dbname=$dbname";  
 
 
 
@@ -95,7 +95,7 @@ try
    $db = new PDO($dsn, $username, $password);
    
    // dispaly a message to let us know that we are connected to the database 
-   echo "<p>You are connected to the database -- host=$host</p>";
+   // echo "<p>You are connected to the database -- host=$host</p>";
 }
 catch (PDOException $e)     // handle a PDO exception (errors thrown by the PDO library)
 {
