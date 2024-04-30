@@ -9,6 +9,7 @@ if (!$_SESSION["user_id"]) {
     exit;
 }
 
+// echo $_SESSION["user_id"];
 $user_information = getUserInformation($_SESSION["user_id"]);
 $user_addresses = getUserAddresses($_SESSION["user_id"]);
 
@@ -39,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             );
             makeAddressPrimary($_SESSION["user_id"], $address_ID);
         }
+        $user_information = getUserInformation($_SESSION["user_id"]);
     }
     else if (!empty($_POST["addMembershipBtn"]))
     {
@@ -155,23 +157,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         <form method="post" action="my_profile.php">
             <div class=info-box>
                 <label for="streetNumber">Street #:</label>
-                <input type="text" id="streetNumber" name="streetNumber" value="<?php echo $user_information["street_num"]; ?>"><br>
+                <input type="text" id="streetNumber" name="streetNumber" value="<?php echo (array_key_exists('street_num', $user_information)) ? $user_information["street_num"] : ""; ?>"><br>
             </div>
             <div class=info-box>
                 <label for="streetName">Street Name:</label>
-                <input type="text" id="streetName" name="streetName" value="<?php echo $user_information["street_name"]; ?>"><br>
+                <input type="text" id="streetName" name="streetName" value="<?php echo (array_key_exists('street_name', $user_information)) ? $user_information["street_name"] : ""; ?>"><br>
             </div>
             <div class=info-box>
                 <label for="city">City:</label>
-                <input type="text" id="city" name="city" value="<?php echo $user_information["city"]; ?>"><br>
+                <input type="text" id="city" name="city" value="<?php echo (array_key_exists('city', $user_information)) ? $user_information["city"] : ""; ?>"><br>
             </div>
             <div class=info-box>
                 <label for="state">State:</label>
-                <input type="text" id="state" name="state" value="<?php echo $user_information["state"]; ?>"><br>
+                <input type="text" id="state" name="state" value="<?php echo (array_key_exists('state', $user_information)) ? $user_information["state"] : ""; ?>"><br>
             </div>
             <div class=info-box>
                 <label for="zipcode">Zipcode:</label>
-                <input type="text" id="zipcode" name="zipcode" value="<?php echo $user_information["zipcode"]; ?>"><br>
+                <input type="text" id="zipcode" name="zipcode" value="<?php echo (array_key_exists('zipcode', $user_information)) ? $user_information["zipcode"] : ""; ?>"><br>
             </div>
             <input style="margin-top:10px;" type="submit" value="Update" id="editAddressBtn" name="editAddressBtn" class="btn btn-primary"/>
         </form>

@@ -224,6 +224,21 @@ function getUserInformation($user_id) {
     global $db;
 
     $query = "SELECT * FROM _User 
+              WHERE user_ID = :user_ID";
+
+    $statement = $db->prepare($query);
+
+    $statement->bindValue(':user_ID', $user_id, PDO::PARAM_INT);
+
+    $statement->execute();
+    $result = $statement->fetch();
+    $statement->closeCursor();
+
+    if (!$result["address"]) {
+        return $result;
+    }
+
+    $query = "SELECT * FROM _User 
               JOIN Address ON _User.address = Address.address_ID
               WHERE user_ID = :user_ID";
 
