@@ -222,7 +222,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function generateItemTable(){
-            updateResults();
             let html = `<table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
                     <tr style="background-color:#B0B0B0">
@@ -261,7 +260,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function generateItemStoreTable(){
-            updateResults();
             let html = `
                 <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
@@ -305,7 +303,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function generateStoreItemTable(){
-            updateResults();
             let html = `
             <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
                 <thead>
