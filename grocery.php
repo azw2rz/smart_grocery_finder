@@ -21,13 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     if (!empty($_GET['searchBtn'])) 
     {
-        // search from database
-        // $_GET['searchType'] decides which database it searches from
-        // $_GET['searchInput'] decides the keyword in the SQL WHERE clause
-        $list_of_results = searchReqeust($_GET['searchType'], $_GET['searchInput']);
-        // echo count($list_of_results);
-        $result_type = $_GET['searchType'];
-        $search_input = $_GET['searchInput'];
+        if($_GET['searchType']=="store" && $_GET['searchInput']=="storeNearMe"){
+            $list_of_results=searchStoreNearMe($_SESSION['user_id']);
+            $result_type = $_GET['searchType'];
+        }else{
+            // search from database
+            // $_GET['searchType'] decides which database it searches from
+            // $_GET['searchInput'] decides the keyword in the SQL WHERE clause
+            $list_of_results = searchReqeust($_GET['searchType'], $_GET['searchInput']);
+            // echo count($list_of_results);
+            $result_type = $_GET['searchType'];
+            $search_input = $_GET['searchInput'];
+        }
     } 
     else if (!empty($_GET['clearBtn'])) 
     {
@@ -82,11 +87,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                         </div>
                     </td>
-                    <td width="70%">
+                    <td width="60%">
                         <div class="mb-3">
                             Type in your keyword:
                             <input type='text' class='form-control' id='searchInput' name='searchInput'
                             value="<?php echo $search_input; ?>" />
+                        </div>
+                    </td>
+                    <td width="10%">
+                        <div class="mb-3">
+                            <img src="https://iili.io/JglLem7.png" id="getstorelocation" width="50" height="50" class="btn" style="padding: 2px 2px; font-size: 10px; margin-top: 18px; margin-left: 13px; cursor: pointer;">
                         </div>
                     </td>
                 </tr>
@@ -360,6 +370,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }catch(error){
             console.log(error);
         }
+
+        document.getElementById('getstorelocation').addEventListener('click', function() {
+        fetch('grocery.php?searchType=store&searchInput=storeNearMe&searchBtn=Search')
+        .then(response => {
+            if(response.ok){
+                window.location.href = response.url;
+            }
+            console.log(response);
+        })
+    });
+
     </script>
 
 </body>

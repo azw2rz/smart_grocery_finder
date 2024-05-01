@@ -122,6 +122,37 @@ function checkAdmin($user_ID) {
     return $result["admin"];
 }
 
+function searchStoreNearMe($user) {
+    global $db;
+    $userZipQuery = "SELECT Address.zipcode
+    FROM Address JOIN _User ON Address.address_ID = _User.address
+    WHERE _User.user_ID = :user";
+
+    $zipStatement = $db->prepare($userZipQuery);
+    $zipStatement->bindValue(':user', $user, PDO::PARAM_INT);
+    $zipStatement->execute();
+    $myZip = $zipStatement->fetchColumn(); 
+    $zipStatement->closeCursor();
+
+    $query = "SELECT *,
+                ABS(Address.zipcode - :myZip) AS zip_difference
+              FROM
+                Store
+                JOIN Address ON Store.address = Address.address_ID
+              WHERE
+                ABS(Address.zipcode - :myZip) <= 30
+              ORDER BY
+                zip_difference";
+
+    $statement = $db->prepare($query);
+    $statement->bindValue(':myZip', $myZip, PDO::PARAM_INT);
+    $statement->execute(); 
+    $result = $statement->fetchAll();
+    $statement->closeCursor();
+    return $result; 
+}
+
+
 function searchReqeust($searchType, $searchInput) {
     global $db;
 
